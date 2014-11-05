@@ -2,6 +2,8 @@ Arduino Basic
 =============
 A complete BASIC interpreter for the Arduino, using a PS/2 keyboard, and SPI OLED screen. The BASIC supports almost all the usual features, with float and string variables, multi-dimensional arrays, FOR-NEXT, GOSUB-RETURN, etc. Saving and Loading from EEPROM is supported, as well as auto-running a program on power-up. You can also read and write from the analog and digital pins.
 
+There's about 1k of RAM available for your BASIC programs and variables. The other 1k of RAM (on an UNO) is used for the keyboard and screen buffers, with a small bit of room left for the CPU stack. That works out quite well, since there's a 1k EEPROM on the arduino so if your program fits in the basic environment, it will fit when saved to EEPROM!
+
 [![Demo](http://img.youtube.com/vi/JB5RXoO1IwQ/0.jpg)](http://www.youtube.com/watch?v=JB5RXoO1IwQ)
 
 Prerequisites
