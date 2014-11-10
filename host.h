@@ -12,6 +12,7 @@ int host_digitalRead(int pin);
 int host_analogRead(int pin);
 void host_pinMode(int pin, int mode);
 void host_click();
+void host_startupTone();
 void host_cls();
 void host_showBuffer();
 void host_moveCursor(int x, int y);

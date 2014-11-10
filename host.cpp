@@ -72,6 +72,19 @@ void host_click() {
     digitalWrite(buzPin, LOW);
 }
 
+void host_startupTone() {
+    if (!buzPin) return;
+    for (int i=1; i<=2; i++) {
+        for (int j=0; j<50*i; j++) {
+            digitalWrite(buzPin, HIGH);
+            delay(3-i);
+            digitalWrite(buzPin, LOW);
+            delay(3-i);
+        }
+        delay(100);
+    }    
+}
+
 void host_cls() {
     memset(screenBuffer, 32, SCREEN_WIDTH*SCREEN_HEIGHT);
     memset(lineDirty, 1, SCREEN_HEIGHT);

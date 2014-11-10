@@ -1866,7 +1866,6 @@ int parseStmts()
     breakCurrentLine = 0;
     jumpLineNumber = 0;
     jumpStmtNumber = 0;
-    stmtNumber = 0;
 
     while (ret == 0) {
         if (curToken == TOKEN_EOL)
@@ -1967,6 +1966,7 @@ int processInput(unsigned char *tokenBuf) {
         while (1) {
             getNextToken();
 
+            stmtNumber = 0;
             // skip any statements? (e.g. for/next)
             if (targetStmtNumber) {
                 executeMode = 0; 
@@ -1980,10 +1980,14 @@ int processInput(unsigned char *tokenBuf) {
                 break;
 
             // are we processing the input buffer?
-            if (lineNumber == 0 && !jumpLineNumber && !jumpStmtNumber)
+            if (!lineNumber && !jumpLineNumber && !jumpStmtNumber)
                 break;	// if no control flow jumps, then just exit
 
-            if (lineNumber == 0 && jumpLineNumber == 0 && jumpStmtNumber) {
+            // are we RETURNing to the input buffer?
+            if (lineNumber && !jumpLineNumber && jumpStmtNumber)
+                lineNumber = 0;
+
+            if (!lineNumber && !jumpLineNumber && jumpStmtNumber) {
                 // we're executing the buffer, and need to jump stmt (e.g. for/next)
                 tokenBuffer = tokenBuf;
             }

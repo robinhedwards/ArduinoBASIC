@@ -42,7 +42,6 @@ void outputFreeMem() {
 }
 
 void setup() {
-    delay(1000);
     keyboard.begin(DataPin, IRQpin);
     oled.ssd1306_init(SSD1306_SWITCHCAPVCC);
 
@@ -55,6 +54,8 @@ void setup() {
     host_showBuffer();
     if (EEPROM.read(0) == MAGIC_AUTORUN_NUMBER)
         autorun = 1;
+    else
+        host_startupTone();
 }
 
 void loop() {
