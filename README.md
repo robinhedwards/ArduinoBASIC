@@ -18,6 +18,8 @@ Prerequisites
 
 4: (Optional) A Piezoelectric buzzer for keyboard clicks and other sounds.
 
+5: (Optional) A external EEPROM (e.g. 24LC256) lets you save more than one file. You can pick these up for about £2/$2 on ebay.
+
 Getting Started
 ---------------
 1: Download the zip file, unpack and copy the *folder* to your arduino sketches directory.
