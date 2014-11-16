@@ -7,6 +7,20 @@
 #include "basic.h"
 #include "host.h"
 
+// Define in host.h if using an external EEPROM e.g. 24LC256
+// Should be connected to the I2C pins
+// SDA -> Analog Pin 4, SCL -> Analog Pin 5
+// See e.g. http://www.hobbytronics.co.uk/arduino-external-eeprom
+
+// If using an external EEPROM, you'll also have to initialise it by
+// running once with the appropriate lines enabled in setup() - see below
+
+#if EXTERNAL_EEPROM
+#include <I2cMaster.h>
+// Instance of class for hardware master with pullups enabled
+TwiMaster rtc(true);
+#endif
+
 // Keyboard
 const int DataPin = 8;
 const int IRQpin =  3;
@@ -25,21 +39,13 @@ SSD1306ASCII oled(OLED_DATA, OLED_CLK, OLED_DC, OLED_RST, OLED_CS);
 // buzzer pin, 0 = disabled/not present
 #define BUZZER_PIN    5
 
-// basic
+// BASIC
 unsigned char mem[MEMORY_SIZE];
-#define TOKEN_BUF_SIZE    50
+#define TOKEN_BUF_SIZE    64
 unsigned char tokenBuf[TOKEN_BUF_SIZE];
 
 prog_char welcomeStr[] PROGMEM = "Arduino BASIC";
-prog_char bytesFreeStr[] PROGMEM = "bytes free";
 char autorun = 0;
-
-void outputFreeMem() {
-    host_newLine();
-    host_outputInt(sysVARSTART - sysPROGEND);
-    host_outputChar(' ');
-    host_outputProgMemString(bytesFreeStr);      
-}
 
 void setup() {
     keyboard.begin(DataPin, IRQpin);
@@ -50,8 +56,15 @@ void setup() {
     host_cls();
     host_outputProgMemString(welcomeStr);
     // show memory size
-    outputFreeMem();
+    host_outputFreeMem(sysVARSTART - sysPROGEND);
     host_showBuffer();
+    
+    // IF USING EXTERNAL EEPROM
+    // The following line 'wipes' the external EEPROM and prepares
+    // it for use. Uncomment it, upload the sketch, then comment it back
+    // in again and upload again, if you use a new EEPROM.
+    // writeExtEEPROM(0,0); writeExtEEPROM(1,0);
+
     if (EEPROM.read(0) == MAGIC_AUTORUN_NUMBER)
         autorun = 1;
     else
@@ -66,7 +79,7 @@ void loop() {
         char *input = host_readLine();
         // special editor commands
         if (input[0] == '?' && input[1] == 0) {
-            outputFreeMem(); 
+            host_outputFreeMem(sysVARSTART - sysPROGEND);
             host_showBuffer();
             return;
         }

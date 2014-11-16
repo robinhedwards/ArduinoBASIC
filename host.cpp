@@ -18,6 +18,8 @@ char inputMode = 0;
 char inkeyChar = 0;
 char buzPin = 0;
 
+prog_char bytesFreeStr[] PROGMEM = "bytes free";
+
 void initTimer() {
     noInterrupts();           // disable all interrupts
     TCCR1A = 0;
@@ -287,6 +289,14 @@ bool host_ESCPressed() {
     return false;
 }
 
+void host_outputFreeMem(unsigned int val)
+{
+    host_newLine();
+    host_outputInt(val);
+    host_outputChar(' ');
+    host_outputProgMemString(bytesFreeStr);      
+}
+
 void host_saveProgram(bool autoexec) {
     EEPROM.write(0, autoexec ? MAGIC_AUTORUN_NUMBER : 0x00);
     EEPROM.write(1, sysPROGEND & 0xFF);
@@ -302,4 +312,123 @@ void host_loadProgram() {
         mem[i] = EEPROM.read(i+3);
 }
 
+#if EXTERNAL_EEPROM
+#include <I2cMaster.h>
+extern TwiMaster rtc;
+
+void writeExtEEPROM(unsigned int address, byte data) 
+{
+  if (address % 32 == 0) host_click();
+  rtc.start((EXTERNAL_EEPROM_ADDR<<1)|I2C_WRITE);
+  rtc.write((int)(address >> 8));   // MSB
+  rtc.write((int)(address & 0xFF)); // LSB
+  rtc.write(data);
+  rtc.stop();
+  delay(5);
+}
+ 
+byte readExtEEPROM(unsigned int address) 
+{
+  rtc.start((EXTERNAL_EEPROM_ADDR<<1)|I2C_WRITE);
+  rtc.write((int)(address >> 8));   // MSB
+  rtc.write((int)(address & 0xFF)); // LSB
+  rtc.restart((EXTERNAL_EEPROM_ADDR<<1)|I2C_READ);
+  byte b = rtc.read(true);
+  rtc.stop();
+  return b;
+}
+
+// get the EEPROM address of a file, or the end if fileName is null
+unsigned int getExtEEPROMAddr(char *fileName) {
+    unsigned int addr = 0;
+    while (1) {
+        unsigned int len = readExtEEPROM(addr) | (readExtEEPROM(addr+1) << 8);
+        if (len == 0) break;
+        
+        if (fileName) {
+            bool found = true;
+            for (int i=0; i<=strlen(fileName); i++) {
+                if (fileName[i] != readExtEEPROM(addr+2+i)) {
+                    found = false;
+                    break;
+                }
+            }
+            if (found) return addr;
+        }
+        addr += len;
+    }
+    return fileName ? EXTERNAL_EEPROM_SIZE : addr;
+}
+
+void host_directoryExtEEPROM() {
+    unsigned int addr = 0;
+    while (1) {
+        unsigned int len = readExtEEPROM(addr) | (readExtEEPROM(addr+1) << 8);
+        if (len == 0) break;
+        int i = 0;
+        while (1) {
+            char ch = readExtEEPROM(addr+2+i);
+            if (!ch) break;
+            host_outputChar(readExtEEPROM(addr+2+i));
+            i++;
+        }
+        addr += len;
+        host_outputChar(' ');
+    }
+    host_outputFreeMem(EXTERNAL_EEPROM_SIZE - addr - 2);
+}
+
+bool host_removeExtEEPROM(char *fileName) {
+    unsigned int addr = getExtEEPROMAddr(fileName);
+    if (addr == EXTERNAL_EEPROM_SIZE) return false;
+    unsigned int len = readExtEEPROM(addr) | (readExtEEPROM(addr+1) << 8);
+    unsigned int last = getExtEEPROMAddr(NULL);
+    unsigned int count = 2 + last - (addr + len);
+    while (count--) {
+        byte b = readExtEEPROM(addr+len);
+        writeExtEEPROM(addr, b);
+        addr++;
+    }
+    return true;    
+}
+
+bool host_loadExtEEPROM(char *fileName) {
+    unsigned int addr = getExtEEPROMAddr(fileName);
+    if (addr == EXTERNAL_EEPROM_SIZE) return false;
+    // skip filename
+    addr += 2;
+    while (readExtEEPROM(addr++)) ;
+    sysPROGEND = readExtEEPROM(addr) | (readExtEEPROM(addr+1) << 8);
+    for (int i=0; i<sysPROGEND; i++)
+        mem[i] = readExtEEPROM(addr+2+i);
+}
+
+bool host_saveExtEEPROM(char *fileName) {
+    unsigned int addr = getExtEEPROMAddr(fileName);
+    if (addr != EXTERNAL_EEPROM_SIZE)
+        host_removeExtEEPROM(fileName);
+    addr = getExtEEPROMAddr(NULL);
+    unsigned int fileNameLen = strlen(fileName);
+    unsigned int len = 2 + fileNameLen + 1 + 2 + sysPROGEND;
+    if ((long)EXTERNAL_EEPROM_SIZE - addr - len - 2 < 0)
+        return false;
+    // write overall length
+    writeExtEEPROM(addr++, len & 0xFF);
+    writeExtEEPROM(addr++, (len >> 8) & 0xFF);
+    // write filename
+    for (int i=0; i<strlen(fileName); i++)
+        writeExtEEPROM(addr++, fileName[i]);
+    writeExtEEPROM(addr++, 0);
+    // write length & program    
+    writeExtEEPROM(addr++, sysPROGEND & 0xFF);
+    writeExtEEPROM(addr++, (sysPROGEND >> 8) & 0xFF);
+    for (int i=0; i<sysPROGEND; i++)
+        writeExtEEPROM(addr++, mem[i]);
+    // 0 length marks end
+    writeExtEEPROM(addr++, 0);
+    writeExtEEPROM(addr++, 0);
+    return true;
+}
+
+#endif
 

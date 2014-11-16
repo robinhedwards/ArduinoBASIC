@@ -65,9 +65,14 @@
 #define TOKEN_LOAD              61
 #define TOKEN_PINREAD           62
 #define TOKEN_ANALOGRD          63
+#define TOKEN_DIR               64
+#define TOKEN_DELETE            65
 
 #define FIRST_IDENT_TOKEN 23
-#define LAST_IDENT_TOKEN 63
+#define LAST_IDENT_TOKEN 65
+
+#define FIRST_NON_ALPHA_TOKEN    8
+#define LAST_NON_ALPHA_TOKEN    22
 
 #define ERROR_NONE				0
 // parse errors
