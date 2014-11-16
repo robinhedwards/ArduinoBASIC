@@ -78,8 +78,9 @@ PAUSE milliseconds
 POSITION x,y sets the cursor
 PIN pinNum, value (0 = low, non-zero = high)
 PINMODE pinNum, mode ( 0 = input, 1 = output)
-LOAD (from EEPROM)
-SAVE (to EEPROM) e.g. use SAVE + to set auto-run on boot flag
+LOAD (from internal EEPROM)
+SAVE (to internal EEPROM) e.g. use SAVE + to set auto-run on boot flag
+LOAD "filename", SAVE "filename, DIR, DELETE "filename" if using with external EEPROM.
 ```
 
 "Pseudo-identifiers"
