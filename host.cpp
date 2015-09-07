@@ -18,7 +18,7 @@ char inputMode = 0;
 char inkeyChar = 0;
 char buzPin = 0;
 
-prog_char bytesFreeStr[] PROGMEM = "bytes free";
+const char bytesFreeStr[] PROGMEM = "bytes free";
 
 void initTimer() {
     noInterrupts();           // disable all interrupts

@@ -61,33 +61,34 @@ int sysSTACKSTART, sysSTACKEND;
 int sysVARSTART, sysVAREND;
 int sysGOSUBSTART, sysGOSUBEND;
 
-prog_char string_0[] PROGMEM = "OK";
-prog_char string_1[] PROGMEM = "Bad number";
-prog_char string_2[] PROGMEM = "Line too long";
-prog_char string_3[] PROGMEM = "Unexpected input";
-prog_char string_4[] PROGMEM = "Unterminated string";
-prog_char string_5[] PROGMEM = "Missing bracket";
-prog_char string_6[] PROGMEM = "Error in expr";
-prog_char string_7[] PROGMEM = "Numeric expr expected";
-prog_char string_8[] PROGMEM = "String expr expected";
-prog_char string_9[] PROGMEM = "Line number too big";
-prog_char string_10[] PROGMEM = "Out of memory";
-prog_char string_11[] PROGMEM = "Div by zero";
-prog_char string_12[] PROGMEM = "Variable not found";
-prog_char string_13[] PROGMEM = "Bad command";
-prog_char string_14[] PROGMEM = "Bad line number";
-prog_char string_15[] PROGMEM = "Break pressed";
-prog_char string_16[] PROGMEM = "NEXT without FOR";
-prog_char string_17[] PROGMEM = "STOP statement";
-prog_char string_18[] PROGMEM = "Missing THEN in IF";
-prog_char string_19[] PROGMEM = "RETURN without GOSUB";
-prog_char string_20[] PROGMEM = "Wrong array dims";
-prog_char string_21[] PROGMEM = "Bad array index";
-prog_char string_22[] PROGMEM = "Bad string index";
-prog_char string_23[] PROGMEM = "Error in VAL input";
-prog_char string_24[] PROGMEM = "Bad parameter";
+const char string_0[] PROGMEM = "OK";
+const char string_1[] PROGMEM = "Bad number";
+const char string_2[] PROGMEM = "Line too long";
+const char string_3[] PROGMEM = "Unexpected input";
+const char string_4[] PROGMEM = "Unterminated string";
+const char string_5[] PROGMEM = "Missing bracket";
+const char string_6[] PROGMEM = "Error in expr";
+const char string_7[] PROGMEM = "Numeric expr expected";
+const char string_8[] PROGMEM = "String expr expected";
+const char string_9[] PROGMEM = "Line number too big";
+const char string_10[] PROGMEM = "Out of memory";
+const char string_11[] PROGMEM = "Div by zero";
+const char string_12[] PROGMEM = "Variable not found";
+const char string_13[] PROGMEM = "Bad command";
+const char string_14[] PROGMEM = "Bad line number";
+const char string_15[] PROGMEM = "Break pressed";
+const char string_16[] PROGMEM = "NEXT without FOR";
+const char string_17[] PROGMEM = "STOP statement";
+const char string_18[] PROGMEM = "Missing THEN in IF";
+const char string_19[] PROGMEM = "RETURN without GOSUB";
+const char string_20[] PROGMEM = "Wrong array dims";
+const char string_21[] PROGMEM = "Bad array index";
+const char string_22[] PROGMEM = "Bad string index";
+const char string_23[] PROGMEM = "Error in VAL input";
+const char string_24[] PROGMEM = "Bad parameter";
 
-PROGMEM const char *errorTable[] = {
+//PROGMEM const char *errorTable[] = {
+const char* const errorTable[] PROGMEM = {
     string_0, string_1, string_2, string_3,
     string_4, string_5, string_6, string_7,
     string_8, string_9, string_10, string_11,
