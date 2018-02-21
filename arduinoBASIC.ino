@@ -1,7 +1,20 @@
+#include "config.h"
+
+#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
 #include <font.h>
 #include <SSD1306ASCII.h>
 // ^ - modified for faster SPI
+#endif
+
+#ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
+#include <SPI.h>
+#include <LiquidCrystal_I2C.h>
+#endif
+
+#ifdef PS2_KEYBOARD_IN_USE
 #include <PS2Keyboard.h>
+#endif
+
 #include <EEPROM.h>
 
 #include "basic.h"
@@ -21,11 +34,14 @@
 TwiMaster rtc(true);
 #endif
 
+#ifdef PS2_KEYBOARD_IN_USE
 // Keyboard
 const int DataPin = 8;
 const int IRQpin =  3;
 PS2Keyboard keyboard;
+#endif
 
+#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
 // OLED
 #define OLED_DATA 9
 #define OLED_CLK 10
@@ -33,8 +49,18 @@ PS2Keyboard keyboard;
 #define OLED_CS 12
 #define OLED_RST 13
 SSD1306ASCII oled(OLED_DATA, OLED_CLK, OLED_DC, OLED_RST, OLED_CS);
+#endif
 
 // NB Keyboard needs a seperate ground from the OLED
+
+#ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
+// LCD
+#define LCD_SERIAL_ADDRESS                      0x27
+#define LCD_COLS                                16
+#define LCD_ROWS                                2
+
+LiquidCrystal_I2C lcd(LCD_SERIAL_ADDRESS, LCD_COLS, LCD_ROWS);
+#endif
 
 // buzzer pin, 0 = disabled/not present
 #define BUZZER_PIN    5
@@ -48,8 +74,22 @@ const char welcomeStr[] PROGMEM = "Arduino BASIC";
 char autorun = 0;
 
 void setup() {
+#ifdef PS2_KEYBOARD_IN_USE
     keyboard.begin(DataPin, IRQpin);
+#endif
+
+#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
     oled.ssd1306_init(SSD1306_SWITCHCAPVCC);
+#endif
+
+#ifdef SERIAL_TERM_IN_USE
+    Serial.begin(19200);
+    while (!Serial);
+#endif
+
+#ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
+    lcd.init();
+#endif
 
     reset();
     host_init(BUZZER_PIN);
@@ -58,7 +98,8 @@ void setup() {
     // show memory size
     host_outputFreeMem(sysVARSTART - sysPROGEND);
     host_showBuffer();
-    
+    delay(1500);
+
     // IF USING EXTERNAL EEPROM
     // The following line 'wipes' the external EEPROM and prepares
     // it for use. Uncomment it, upload the sketch, then comment it back
