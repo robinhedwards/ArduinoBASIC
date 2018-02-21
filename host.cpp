@@ -1,13 +1,45 @@
+#include "config.h"
 #include "host.h"
 #include "basic.h"
 
+#ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
+#include <Arduino.h>
+#include <LiquidCrystal_I2C.h>
+#include <avr/pgmspace.h>
+#endif
+
+#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
 #include <SSD1306ASCII.h>
+#endif
+
+#ifdef PS2_KEYBOARD_IN_USE
 #include <PS2Keyboard.h>
+#endif
+
+#ifdef SERIAL_TERM_IN_USE
+#define BACKSPACE           8
+#define CARR_RET            13
+#define ESCAPE              27
+#endif
+
 #include <EEPROM.h>
 
+#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
 extern SSD1306ASCII oled;
+#endif 
+
+#ifdef PS2_KEYBOARD_IN_USE
 extern PS2Keyboard keyboard;
+#endif
+
+#ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
+extern LiquidCrystal_I2C lcd;
+#endif
+
+#ifdef EXTERNAL_EEPROM_IN_USE
 extern EEPROMClass EEPROM;
+#endif
+
 int timer1_counter;
 
 char screenBuffer[SCREEN_WIDTH*SCREEN_HEIGHT];
@@ -41,7 +73,16 @@ ISR(TIMER1_OVF_vect)        // interrupt service routine
 
 void host_init(int buzzerPin) {
     buzPin = buzzerPin;
+
+#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
     oled.clear();
+#endif
+
+#ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
+    lcd.clear();
+    lcd.setCursor(0, 0);
+#endif
+
     if (buzPin)
         pinMode(buzPin, OUTPUT);
     initTimer();
@@ -106,12 +147,26 @@ void host_moveCursor(int x, int y) {
 void host_showBuffer() {
     for (int y=0; y<SCREEN_HEIGHT; y++) {
         if (lineDirty[y] || (inputMode && y==curY)) {
+
+#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
             oled.setCursor(0,y);
+#endif
+
+#ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
+            lcd.setCursor(0, y);
+#endif
             for (int x=0; x<SCREEN_WIDTH; x++) {
                 char c = screenBuffer[y*SCREEN_WIDTH+x];
                 if (c<32) c = ' ';
                 if (x==curX && y==curY && inputMode && flash) c = 127;
+
+#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
                 oled.print(c);
+#endif
+
+#ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
+                lcd.print(c);
+#endif
             }
             lineDirty[y] = 0;
         }
@@ -231,17 +286,44 @@ char *host_readLine() {
 
     bool done = false;
     while (!done) {
+#ifdef PS2_KEYBOARD_IN_USE
         while (keyboard.available()) {
+#endif
+
+#ifdef SERIAL_TERM_IN_USE
+        while(Serial.available()) { 
+#endif
             host_click();
+
             // read the next key
             lineDirty[pos / SCREEN_WIDTH] = 1;
+
+#ifdef PS2_KEYBOARD_IN_USE
             char c = keyboard.read();
+#endif
+
+#ifdef SERIAL_TERM_IN_USE
+            char c = Serial.read();
+#endif
+
+#ifdef PS2_KEYBOARD_IN_USE
             if (c>=32 && c<=126)
                 screenBuffer[pos++] = c;
             else if (c==PS2_DELETE && pos > startPos)
                 screenBuffer[--pos] = 0;
             else if (c==PS2_ENTER)
                 done = true;
+#endif
+
+#ifdef SERIAL_TERM_IN_USE
+            if (c>=32 && c<=126)
+                screenBuffer[pos++] = c;
+            else if (c == BACKSPACE && pos > startPos)
+                 screenBuffer[--pos] = 0;
+            else if (c == CARR_RET)
+                done = true;
+#endif
+       
             curX = pos % SCREEN_WIDTH;
             curY = pos / SCREEN_WIDTH;
             // scroll if we need to
@@ -280,11 +362,26 @@ char host_getKey() {
 }
 
 bool host_ESCPressed() {
+#ifdef PS2_KEYBOARD_IN_USE
     while (keyboard.available()) {
+#endif
+
+#ifdef SERIAL_TERM_IN_USE
+    while(Serial.available()) {
+#endif
+
         // read the next key
+#ifdef PS2_KEYBOARD_IN_USE
         inkeyChar = keyboard.read();
         if (inkeyChar == PS2_ESC)
             return true;
+#endif
+
+#ifdef SERIAL_TERM_IN_USE
+        inkeyChar = Serial.read();
+        if (inkeyChar == ESCAPE)
+            return true;
+#endif 
     }
     return false;
 }

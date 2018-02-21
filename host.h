@@ -1,9 +1,23 @@
+#ifndef _HOST_H_
+#define _HOST_H_
+#include "config.h"
 #include <stdint.h>
 
+#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
 #define SCREEN_WIDTH        21
 #define SCREEN_HEIGHT       8
+#endif
 
+#ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
+#define SCREEN_WIDTH        16
+#define SCREEN_HEIGHT       2
+#endif
+
+#ifdef EXTERNAL_EEPROM_IN_USE
 #define EXTERNAL_EEPROM         1
+#else
+#define EXTERNAL_EEPROM         0
+#endif
 #define EXTERNAL_EEPROM_ADDR    0x50    // I2C address (7 bits)
 #define EXTERNAL_EEPROM_SIZE    32768   // only <=32k tested (64k might work?)
 
@@ -42,3 +56,4 @@ bool host_saveExtEEPROM(char *fileName);
 bool host_loadExtEEPROM(char *fileName);
 bool host_removeExtEEPROM(char *fileName);
 #endif
+#endif /* _HOST_H_ */
