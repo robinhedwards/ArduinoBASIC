@@ -56,3 +56,4 @@ bool host_saveExtEEPROM(char *fileName);
 bool host_loadExtEEPROM(char *fileName);
 bool host_removeExtEEPROM(char *fileName);
 #endif
+#endif /* _HOST_H_ */
