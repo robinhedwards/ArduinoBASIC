@@ -14,7 +14,7 @@
 
 
 #if defined(SSD1306ASCII_OLED_DISPLAY_IN_USE) && defined(I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE)
-#error Only one disp. should be defined!
+#error Only one display should be defined!
 #endif
 
 #if defined(PS2_KEYBOARD_IN_USE) && defined(SERIAL_TERM_IN_USE)

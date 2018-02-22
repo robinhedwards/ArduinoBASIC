@@ -17,9 +17,9 @@
 #endif
 
 #ifdef SERIAL_TERM_IN_USE
-#define BACKSPACE           8
-#define CARR_RET            13
-#define ESCAPE              27
+#define SERIAL_DELETE          127
+#define SERIAL_CR               13
+#define SERIAL_ESC              27
 #endif
 
 #include <EEPROM.h>
@@ -34,6 +34,7 @@ extern PS2Keyboard keyboard;
 
 #ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
 extern LiquidCrystal_I2C lcd;
+#define CURSOR_CHR             255
 #endif
 
 #ifdef EXTERNAL_EEPROM_IN_USE
@@ -158,7 +159,7 @@ void host_showBuffer() {
             for (int x=0; x<SCREEN_WIDTH; x++) {
                 char c = screenBuffer[y*SCREEN_WIDTH+x];
                 if (c<32) c = ' ';
-                if (x==curX && y==curY && inputMode && flash) c = 127;
+                if (x==curX && y==curY && inputMode && flash) c = CURSOR_CHR;
 
 #ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
                 oled.print(c);
@@ -291,7 +292,7 @@ char *host_readLine() {
 #endif
 
 #ifdef SERIAL_TERM_IN_USE
-        while(Serial.available()) { 
+        while(Serial.available() > 0) { 
 #endif
             host_click();
 
@@ -318,9 +319,9 @@ char *host_readLine() {
 #ifdef SERIAL_TERM_IN_USE
             if (c>=32 && c<=126)
                 screenBuffer[pos++] = c;
-            else if (c == BACKSPACE && pos > startPos)
+            else if (c == SERIAL_DELETE && pos > startPos)
                  screenBuffer[--pos] = 0;
-            else if (c == CARR_RET)
+            else if (c == SERIAL_CR)
                 done = true;
 #endif
        
@@ -347,6 +348,7 @@ char *host_readLine() {
     }
     screenBuffer[pos] = 0;
     inputMode = 0;
+
     // remove the cursor
     lineDirty[curY] = 1;
     host_showBuffer();
@@ -367,7 +369,7 @@ bool host_ESCPressed() {
 #endif
 
 #ifdef SERIAL_TERM_IN_USE
-    while(Serial.available()) {
+    while(Serial.available() > 0) {
 #endif
 
         // read the next key
@@ -379,7 +381,7 @@ bool host_ESCPressed() {
 
 #ifdef SERIAL_TERM_IN_USE
         inkeyChar = Serial.read();
-        if (inkeyChar == ESCAPE)
+        if (inkeyChar == SERIAL_ESC)
             return true;
 #endif 
     }
