@@ -1,11 +1,5 @@
 #include "config.h"
 
-#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
-#include <font.h>
-#include <SSD1306ASCII.h>
-// ^ - modified for faster SPI
-#endif
-
 #ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
 #include <SPI.h>
 #include <LiquidCrystal_I2C.h>
@@ -41,18 +35,6 @@ const int IRQpin =  3;
 PS2Keyboard keyboard;
 #endif
 
-#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
-// OLED
-#define OLED_DATA 9
-#define OLED_CLK 10
-#define OLED_DC 11
-#define OLED_CS 12
-#define OLED_RST 13
-SSD1306ASCII oled(OLED_DATA, OLED_CLK, OLED_DC, OLED_RST, OLED_CS);
-#endif
-
-// NB Keyboard needs a seperate ground from the OLED
-
 #ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
 // LCD
 #define LCD_SERIAL_ADDRESS                      0x27
@@ -76,10 +58,6 @@ char autorun = 0;
 void setup() {
 #ifdef PS2_KEYBOARD_IN_USE
     keyboard.begin(DataPin, IRQpin);
-#endif
-
-#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
-    oled.ssd1306_init(SSD1306_SWITCHCAPVCC);
 #endif
 
 #ifdef SERIAL_TERM_IN_USE

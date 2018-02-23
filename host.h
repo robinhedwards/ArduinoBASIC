@@ -3,11 +3,6 @@
 #include "config.h"
 #include <stdint.h>
 
-#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
-#define SCREEN_WIDTH            21
-#define SCREEN_HEIGHT           8
-#endif
-
 #ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
 #define SCREEN_WIDTH            16
 #define SCREEN_HEIGHT           2

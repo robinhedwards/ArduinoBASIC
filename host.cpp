@@ -8,10 +8,6 @@
 #include <avr/pgmspace.h>
 #endif
 
-#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
-#include <SSD1306ASCII.h>
-#endif
-
 #ifdef PS2_KEYBOARD_IN_USE
 #include <PS2Keyboard.h>
 #endif
@@ -23,10 +19,6 @@
 #endif
 
 #include <EEPROM.h>
-
-#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
-extern SSD1306ASCII oled;
-#endif 
 
 #ifdef PS2_KEYBOARD_IN_USE
 extern PS2Keyboard keyboard;
@@ -74,10 +66,6 @@ ISR(TIMER1_OVF_vect)        // interrupt service routine
 
 void host_init(int buzzerPin) {
     buzPin = buzzerPin;
-
-#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
-    oled.clear();
-#endif
 
 #ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
     lcd.clear();
@@ -149,10 +137,6 @@ void host_showBuffer() {
     for (int y=0; y<SCREEN_HEIGHT; y++) {
         if (lineDirty[y] || (inputMode && y==curY)) {
 
-#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
-            oled.setCursor(0,y);
-#endif
-
 #ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
             lcd.setCursor(0, y);
 #endif
@@ -160,10 +144,6 @@ void host_showBuffer() {
                 char c = screenBuffer[y*SCREEN_WIDTH+x];
                 if (c<32) c = ' ';
                 if (x==curX && y==curY && inputMode && flash) c = CURSOR_CHR;
-
-#ifdef SSD1306ASCII_OLED_DISPLAY_IN_USE
-                oled.print(c);
-#endif
 
 #ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
                 lcd.print(c);
