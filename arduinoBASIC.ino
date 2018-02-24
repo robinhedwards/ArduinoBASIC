@@ -10,22 +10,7 @@
 #include "basic.h"
 #include "host.h"
 
-// Define in host.h if using an external EEPROM e.g. 24LC256
-// Should be connected to the I2C pins
-// SDA -> Analog Pin 4, SCL -> Analog Pin 5
-// See e.g. http://www.hobbytronics.co.uk/arduino-external-eeprom
-
-// If using an external EEPROM, you'll also have to initialise it by
-// running once with the appropriate lines enabled in setup() - see below
-
-#if EXTERNAL_EEPROM
-#include <I2cMaster.h>
-// Instance of class for hardware master with pullups enabled
-TwiMaster rtc(true);
-#endif
-
 #ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
-// LCD
 #define LCD_SERIAL_ADDRESS                      0x27
 #define LCD_COLS                                16
 #define LCD_ROWS                                2

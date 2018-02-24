@@ -8,14 +8,6 @@
 #define SCREEN_HEIGHT           2
 #endif
 
-#ifdef EXTERNAL_EEPROM_IN_USE
-#define EXTERNAL_EEPROM         1
-#define EXTERNAL_EEPROM_ADDR    0x50    // I2C address (7 bits)
-#define EXTERNAL_EEPROM_SIZE    32768   // only <=32k tested (64k might work?)
-#else
-#define EXTERNAL_EEPROM         0
-#endif
-
 #define MAGIC_AUTORUN_NUMBER    0xFC
 
 void host_init(int buzzerPin);
@@ -42,13 +34,4 @@ bool host_ESCPressed();
 void host_outputFreeMem(unsigned int val);
 void host_saveProgram(bool autoexec);
 void host_loadProgram();
-
-#if EXTERNAL_EEPROM
-#include <I2cMaster.h>
-void writeExtEEPROM(unsigned int address, byte data);
-void host_directoryExtEEPROM();
-bool host_saveExtEEPROM(char *fileName);
-bool host_loadExtEEPROM(char *fileName);
-bool host_removeExtEEPROM(char *fileName);
-#endif
 #endif /* _HOST_H_ */
