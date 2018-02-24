@@ -8,10 +8,6 @@
 #include <avr/pgmspace.h>
 #endif
 
-#ifdef PS2_KEYBOARD_IN_USE
-#include <PS2Keyboard.h>
-#endif
-
 #ifdef SERIAL_TERM_IN_USE
 #define SERIAL_DELETE          127
 #define SERIAL_CR               13
@@ -19,10 +15,6 @@
 #endif
 
 #include <EEPROM.h>
-
-#ifdef PS2_KEYBOARD_IN_USE
-extern PS2Keyboard keyboard;
-#endif
 
 #ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
 extern LiquidCrystal_I2C lcd;
@@ -267,10 +259,6 @@ char *host_readLine() {
 
     bool done = false;
     while (!done) {
-#ifdef PS2_KEYBOARD_IN_USE
-        while (keyboard.available()) {
-#endif
-
 #ifdef SERIAL_TERM_IN_USE
         while(Serial.available() > 0) { 
 #endif
@@ -279,21 +267,8 @@ char *host_readLine() {
             // read the next key
             lineDirty[pos / SCREEN_WIDTH] = 1;
 
-#ifdef PS2_KEYBOARD_IN_USE
-            char c = keyboard.read();
-#endif
-
 #ifdef SERIAL_TERM_IN_USE
             char c = Serial.read();
-#endif
-
-#ifdef PS2_KEYBOARD_IN_USE
-            if (c>=32 && c<=126)
-                screenBuffer[pos++] = c;
-            else if (c==PS2_DELETE && pos > startPos)
-                screenBuffer[--pos] = 0;
-            else if (c==PS2_ENTER)
-                done = true;
 #endif
 
 #ifdef SERIAL_TERM_IN_USE
@@ -344,21 +319,11 @@ char host_getKey() {
 }
 
 bool host_ESCPressed() {
-#ifdef PS2_KEYBOARD_IN_USE
-    while (keyboard.available()) {
-#endif
-
 #ifdef SERIAL_TERM_IN_USE
     while(Serial.available() > 0) {
 #endif
 
         // read the next key
-#ifdef PS2_KEYBOARD_IN_USE
-        inkeyChar = keyboard.read();
-        if (inkeyChar == PS2_ESC)
-            return true;
-#endif
-
 #ifdef SERIAL_TERM_IN_USE
         inkeyChar = Serial.read();
         if (inkeyChar == SERIAL_ESC)

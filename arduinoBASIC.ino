@@ -5,10 +5,6 @@
 #include <LiquidCrystal_I2C.h>
 #endif
 
-#ifdef PS2_KEYBOARD_IN_USE
-#include <PS2Keyboard.h>
-#endif
-
 #include <EEPROM.h>
 
 #include "basic.h"
@@ -26,13 +22,6 @@
 #include <I2cMaster.h>
 // Instance of class for hardware master with pullups enabled
 TwiMaster rtc(true);
-#endif
-
-#ifdef PS2_KEYBOARD_IN_USE
-// Keyboard
-const int DataPin = 8;
-const int IRQpin =  3;
-PS2Keyboard keyboard;
 #endif
 
 #ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
@@ -56,10 +45,6 @@ const char welcomeStr[] PROGMEM = "Arduino BASIC";
 char autorun = 0;
 
 void setup() {
-#ifdef PS2_KEYBOARD_IN_USE
-    keyboard.begin(DataPin, IRQpin);
-#endif
-
 #ifdef SERIAL_TERM_IN_USE
     Serial.begin(19200);
     while (!Serial);
