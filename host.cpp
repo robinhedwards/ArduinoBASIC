@@ -24,28 +24,134 @@ char inputMode = 0;
 char inkeyChar = 0;
 char buzPin = 0;
 
+#ifdef KEYPAD_8x5_IN_USE
+#define KEY_PERIOD                                  2
+#define KEY_PRESSED_PERIOD                          20
+
+volatile uint8_t value_COL_1 = 0;
+volatile uint8_t value_COL_2 = 0;
+volatile uint8_t value_ROW = 0;
+volatile char pressed_key_char = 0;
+volatile uint8_t timer1_counter_ms;
+volatile uint8_t key_pressed_counter = 0;
+#endif
+
 const char bytesFreeStr[] PROGMEM = "bytes free";
 
-void initTimer() 
+#ifdef KEYPAD_8x5_IN_USE
+const char key_map[ROWS][COLS] PROGMEM = 
+{//COL 0   1    2    3    4                         ROW
+    {' ', '.', 'M', 'N', 'V'},                      // 0
+    {SYMBOL_SHIFT, 'Z', 'X', 'C', 'G'},             // 1
+    {'A', 'S', 'D', 'F', 'T'},                      // 2
+    {'Q', 'W', 'E', 'R', '5'},                      // 3
+    {'1', '2', '3', '4', '6'},                      // 4
+    {'0', '9', '8', '7', 'Y'},                      // 5
+    {'P', 'O', 'I', 'U', 'H'},                      // 6
+    {KEY_ENTER, 'L', 'K', 'J', 'B'}                 // 7
+};
+#endif
+
+void initTimers() 
 {
-    noInterrupts();           // disable all interrupts
+    noInterrupts();             // Disable all interrupts
+
+    // Timer 1
     TCCR1A = 0;
     TCCR1B = 0;
-    timer1_counter = 34286;   // preload timer 65536-16MHz/256/2Hz
-    TCNT1 = timer1_counter;   // preload timer
-    TCCR1B |= (1 << CS12);    // 256 prescaler 
-    TIMSK1 |= (1 << TOIE1);   // enable timer overflow interrupt
-    interrupts();             // enable all interrupts
+    timer1_counter = 34286;     // Preload timer 65536-16MHz/256/2Hz
+    TCNT1 = timer1_counter;     // Preload timer
+    TCCR1B |= (1 << CS12);      // 256 prescaler 
+    TIMSK1 |= (1 << TOIE1);     // Enable timer overflow interrupt
+
+#ifdef KEYPAD_8x5_IN_USE
+    // Timer 2
+    // Setup Timer2 overwlow to fire every 8 ms (125 Hz)
+    // period[sec] = (1 / f_clock[sec]) * prescale * (255 - count)
+    TCCR2B = 0;                 // Disable Timer2 while setting up
+    TCNT2 = 178;                // Reset Timer Count 
+    TIFR2 = 0;                  // Clear Timer Overflow flag
+    TIMSK2 = 0x01;              // Timer2 Overflow Interrupt Enable
+    TCCR2A = 0;                 // Wave Gen Mode normal
+    TCCR2B = 0x07;              // Timer Prescaler set to 1024
+    timer1_counter_ms = KEY_PERIOD;
+#endif
+    interrupts();               // Enable all interrupts
 }
 
 
-ISR(TIMER1_OVF_vect)        // interrupt service routine 
+ISR(TIMER1_OVF_vect)     
 {
-    TCNT1 = timer1_counter;   // preload timer
+    TCNT1 = timer1_counter;     // preload timer
     flash = !flash;
     redraw = 1;
 }
 
+#ifdef KEYPAD_8x5_IN_USE
+ISR(TIMER2_OVF_vect)   
+{
+    TCNT2 = 178;                // Reset Timer Count 
+    TIFR2 = 0;                  // Clear Timer Overflow flag
+
+    if(--timer1_counter_ms == 0)
+    {
+        timer1_counter_ms = KEY_PERIOD;
+        value_COL_1 = get_col_value(value_ROW);
+
+        if((value_COL_1 != 32) && (key_pressed_counter == 0))
+        {
+            pressed_key_char = get_key(value_ROW, value_COL_1);
+            key_pressed_counter = KEY_PRESSED_PERIOD;
+        }
+
+        if(key_pressed_counter >0)
+            key_pressed_counter--;
+        
+        value_ROW++;
+        value_ROW = (value_ROW < ROWS) ? value_ROW : 0;
+    }
+}
+#endif
+
+#ifdef KEYPAD_8x5_IN_USE
+uint8_t get_col_value(uint8_t row)
+{
+    uint8_t value;
+    uint8_t col_value = 0; 
+    uint8_t value_KBD;
+    
+    value = PORTC;
+    PORTC = ((value & 0xF8) | row);
+    value_KBD =  ((PIND & 0xF0) >> 3) | (PINB & 1);
+
+    if (value_KBD == 29) 
+        col_value = 0;
+    else if (value_KBD == 27) 
+        col_value = 1;
+    else if (value_KBD == 23) 
+        col_value = 2;
+    else if (value_KBD == 15) 
+        col_value = 3;
+    else if (value_KBD == 30) 
+        col_value = 4;
+    else
+        col_value = 32;  
+
+    return col_value;
+}
+
+
+char get_key(uint8_t row, uint8_t col)
+{
+    char key = 0;
+    char *ptr = (char *)key_map;
+    
+    if((col < COLS) && (row < ROWS))
+        key = pgm_read_byte(ptr + (col + row * 5));
+
+    return key;
+}
+#endif
 
 void host_init(int buzzerPin) 
 {
@@ -59,7 +165,7 @@ void host_init(int buzzerPin)
     if (buzPin)
         pinMode(buzPin, OUTPUT);
 
-    initTimer();
+    initTimers();
 }
 
 void host_sleep(long ms)
@@ -313,14 +419,18 @@ char *host_readLine()
 
     int startPos = curY * SCREEN_WIDTH + curX;
     int pos = startPos;
-
     bool done = false;
+
     while (!done) 
     {
 #ifdef SERIAL_TERM_IN_USE
         while(Serial.available() > 0)
-        { 
 #endif
+
+#ifdef KEYPAD_8x5_IN_USE
+        if(pressed_key_char != 0)
+#endif
+        {
             host_click();
 
             // read the next key
@@ -328,17 +438,29 @@ char *host_readLine()
 
 #ifdef SERIAL_TERM_IN_USE
             char c = Serial.read();
-#endif
 
-#ifdef SERIAL_TERM_IN_USE
-            if (c>=32 && c<=126)
+            if (c >= 32 && c <= 126)
                 screenBuffer[pos++] = c;
             else if (c == SERIAL_DELETE && pos > startPos)
                  screenBuffer[--pos] = 0;
             else if (c == SERIAL_CR)
                 done = true;
 #endif
-       
+
+#ifdef KEYPAD_8x5_IN_USE
+            if (pressed_key_char >= 32 && pressed_key_char <= 126)
+            {
+                screenBuffer[pos++] = pressed_key_char;
+            }
+//            else if (pressed_key_char == SERIAL_DELETE && pos > startPos)
+//                 screenBuffer[--pos] = 0;
+            else if (pressed_key_char == KEY_ENTER)
+            {
+                done = true;
+            }
+
+            pressed_key_char = 0;
+#endif
             curX = pos % SCREEN_WIDTH;
             curY = pos / SCREEN_WIDTH;
 
@@ -374,6 +496,7 @@ char *host_readLine()
     host_showBuffer();
     return &screenBuffer[startPos];
 }
+
 
 char host_getKey()
 {

@@ -60,4 +60,8 @@ bool host_ESCPressed();
 void host_outputFreeMem(unsigned int val);
 void host_saveProgram(bool autoexec);
 void host_loadProgram();
+#ifdef KEYPAD_8x5_IN_USE
+char get_key(uint8_t row, uint8_t col);
+uint8_t get_col_value(uint8_t row);
+#endif
 #endif /* _HOST_H_ */

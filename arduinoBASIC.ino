@@ -18,7 +18,7 @@ unsigned char mem[MEMORY_SIZE];
 unsigned char tokenBuf[TOKEN_BUF_SIZE];
 
 const char welcomeStr[] PROGMEM = "Arduino BASIC";
-const char verStr[] PROGMEM = "Ver.0.91";
+const char verStr[] PROGMEM = "Ver.0.51";
 char autorun = 0;
 
 void setup() 
@@ -36,6 +36,17 @@ void setup()
     host_init(BUZZER_PIN);
     host_cls();
     host_outputProgMemString(welcomeStr);
+
+#ifdef KEYPAD_8x5_IN_USE
+    pinMode(IC_74HCT138_A0, OUTPUT);
+    pinMode(IC_74HCT138_A1, OUTPUT);  
+    pinMode(IC_74HCT138_A2, OUTPUT);    
+    pinMode(KBD_0, INPUT);
+    pinMode(KBD_1, INPUT);  
+    pinMode(KBD_2, INPUT);    
+    pinMode(KBD_3, INPUT);
+    pinMode(KBD_4, INPUT);  
+#endif
        
     // Show memory size
     host_outputFreeMem(sysVARSTART - sysPROGEND);
