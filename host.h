@@ -16,23 +16,12 @@
 #define SERIAL_ESC                              27
 #endif
 
-#ifdef KEYPAD_8x5_IN_USE
-#define KEY_ENTER                               13
-#define SYMBOL_SHIFT                            1
-#define COLS                                    5
-#define ROWS                                    8
-#define IC_74HCT138_A0                          14
-#define IC_74HCT138_A1                          15
-#define IC_74HCT138_A2                          16
-#define KBD_0                                   4
-#define KBD_1                                   5
-#define KBD_2                                   6
-#define KBD_3                                   7
-#define KBD_4                                   8
-#endif
-
+#ifdef BUZZER_IN_USE
+#define BUZZER_PIN    0		// TODO
+#else
 // buzzer pin, 0 = disabled/not present
 #define BUZZER_PIN    0
+#endif
 
 #define MAGIC_AUTORUN_NUMBER    0xFC
 
@@ -60,8 +49,4 @@ bool host_ESCPressed();
 void host_outputFreeMem(unsigned int val);
 void host_saveProgram(bool autoexec);
 void host_loadProgram();
-#ifdef KEYPAD_8x5_IN_USE
-char get_key(uint8_t row, uint8_t col);
-uint8_t get_col_value(uint8_t row);
-#endif
 #endif /* _HOST_H_ */

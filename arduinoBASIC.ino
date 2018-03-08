@@ -36,17 +36,6 @@ void setup()
     host_init(BUZZER_PIN);
     host_cls();
     host_outputProgMemString(welcomeStr);
-
-#ifdef KEYPAD_8x5_IN_USE
-    pinMode(IC_74HCT138_A0, OUTPUT);
-    pinMode(IC_74HCT138_A1, OUTPUT);  
-    pinMode(IC_74HCT138_A2, OUTPUT);    
-    pinMode(KBD_0, INPUT);
-    pinMode(KBD_1, INPUT);  
-    pinMode(KBD_2, INPUT);    
-    pinMode(KBD_3, INPUT);
-    pinMode(KBD_4, INPUT);  
-#endif
        
     // Show memory size
     host_outputFreeMem(sysVARSTART - sysPROGEND);
@@ -55,8 +44,10 @@ void setup()
 
     if (EEPROM.read(0) == MAGIC_AUTORUN_NUMBER)
         autorun = 1;
+#ifdef BUZZER_IN_USE
     else
         host_startupTone();
+#endif
 }
 
 
@@ -107,4 +98,3 @@ void loop()
         host_outputProgMemString((char *)pgm_read_word(&(errorTable[ret])));
     }
 }
-

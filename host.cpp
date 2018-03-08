@@ -22,35 +22,11 @@ int curX = 0, curY = 0;
 volatile char flash = 0, redraw = 0;
 char inputMode = 0;
 char inkeyChar = 0;
+#ifdef BUZZER_IN_USE
 char buzPin = 0;
-
-#ifdef KEYPAD_8x5_IN_USE
-#define KEY_PERIOD                                  2
-#define KEY_PRESSED_PERIOD                          20
-
-volatile uint8_t value_COL_1 = 0;
-volatile uint8_t value_COL_2 = 0;
-volatile uint8_t value_ROW = 0;
-volatile char pressed_key_char = 0;
-volatile uint8_t timer1_counter_ms;
-volatile uint8_t key_pressed_counter = 0;
 #endif
 
 const char bytesFreeStr[] PROGMEM = "bytes free";
-
-#ifdef KEYPAD_8x5_IN_USE
-const char key_map[ROWS][COLS] PROGMEM = 
-{//COL 0   1    2    3    4                         ROW
-    {' ', '.', 'M', 'N', 'V'},                      // 0
-    {SYMBOL_SHIFT, 'Z', 'X', 'C', 'G'},             // 1
-    {'A', 'S', 'D', 'F', 'T'},                      // 2
-    {'Q', 'W', 'E', 'R', '5'},                      // 3
-    {'1', '2', '3', '4', '6'},                      // 4
-    {'0', '9', '8', '7', 'Y'},                      // 5
-    {'P', 'O', 'I', 'U', 'H'},                      // 6
-    {KEY_ENTER, 'L', 'K', 'J', 'B'}                 // 7
-};
-#endif
 
 void initTimers() 
 {
@@ -64,18 +40,6 @@ void initTimers()
     TCCR1B |= (1 << CS12);      // 256 prescaler 
     TIMSK1 |= (1 << TOIE1);     // Enable timer overflow interrupt
 
-#ifdef KEYPAD_8x5_IN_USE
-    // Timer 2
-    // Setup Timer2 overwlow to fire every 8 ms (125 Hz)
-    // period[sec] = (1 / f_clock[sec]) * prescale * (255 - count)
-    TCCR2B = 0;                 // Disable Timer2 while setting up
-    TCNT2 = 178;                // Reset Timer Count 
-    TIFR2 = 0;                  // Clear Timer Overflow flag
-    TIMSK2 = 0x01;              // Timer2 Overflow Interrupt Enable
-    TCCR2A = 0;                 // Wave Gen Mode normal
-    TCCR2B = 0x07;              // Timer Prescaler set to 1024
-    timer1_counter_ms = KEY_PERIOD;
-#endif
     interrupts();               // Enable all interrupts
 }
 
@@ -87,83 +51,23 @@ ISR(TIMER1_OVF_vect)
     redraw = 1;
 }
 
-#ifdef KEYPAD_8x5_IN_USE
-ISR(TIMER2_OVF_vect)   
-{
-    TCNT2 = 178;                // Reset Timer Count 
-    TIFR2 = 0;                  // Clear Timer Overflow flag
 
-    if(--timer1_counter_ms == 0)
-    {
-        timer1_counter_ms = KEY_PERIOD;
-        value_COL_1 = get_col_value(value_ROW);
-
-        if((value_COL_1 != 32) && (key_pressed_counter == 0))
-        {
-            pressed_key_char = get_key(value_ROW, value_COL_1);
-            key_pressed_counter = KEY_PRESSED_PERIOD;
-        }
-
-        if(key_pressed_counter >0)
-            key_pressed_counter--;
-        
-        value_ROW++;
-        value_ROW = (value_ROW < ROWS) ? value_ROW : 0;
-    }
-}
-#endif
-
-#ifdef KEYPAD_8x5_IN_USE
-uint8_t get_col_value(uint8_t row)
-{
-    uint8_t value;
-    uint8_t col_value = 0; 
-    uint8_t value_KBD;
-    
-    value = PORTC;
-    PORTC = ((value & 0xF8) | row);
-    value_KBD =  ((PIND & 0xF0) >> 3) | (PINB & 1);
-
-    if (value_KBD == 29) 
-        col_value = 0;
-    else if (value_KBD == 27) 
-        col_value = 1;
-    else if (value_KBD == 23) 
-        col_value = 2;
-    else if (value_KBD == 15) 
-        col_value = 3;
-    else if (value_KBD == 30) 
-        col_value = 4;
-    else
-        col_value = 32;  
-
-    return col_value;
-}
-
-
-char get_key(uint8_t row, uint8_t col)
-{
-    char key = 0;
-    char *ptr = (char *)key_map;
-    
-    if((col < COLS) && (row < ROWS))
-        key = pgm_read_byte(ptr + (col + row * 5));
-
-    return key;
-}
-#endif
 
 void host_init(int buzzerPin) 
 {
+#ifdef BUZZER_IN_USE
     buzPin = buzzerPin;
+#endif
 
 #ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
     lcd.clear();
     lcd.setCursor(0, 0);
 #endif
 
+#ifdef BUZZER_IN_USE
     if (buzPin)
         pinMode(buzPin, OUTPUT);
+#endif
 
     initTimers();
 }
@@ -193,6 +97,7 @@ void host_pinMode(int pin,int mode)
     pinMode(pin, mode);
 }
 
+#ifdef BUZZER_IN_USE
 void host_click()
 {
     if (!buzPin) return;
@@ -219,6 +124,7 @@ void host_startupTone()
         delay(100);
     }    
 }
+#endif
 
 void host_cls()
 {
@@ -230,17 +136,17 @@ void host_cls()
 
 void host_moveCursor(int x, int y)
 {
-    if (x<0)
+    if (x < 0)
         x = 0;
 
-    if (x>=SCREEN_WIDTH)
-        x = SCREEN_WIDTH-1;
+    if (x >= SCREEN_WIDTH)
+        x = SCREEN_WIDTH - 1;
     
-    if (y<0)
+    if (y < 0)
         y = 0;
     
-    if (y>=SCREEN_HEIGHT)
-        y = SCREEN_HEIGHT-1;
+    if (y >= SCREEN_HEIGHT)
+        y = SCREEN_HEIGHT - 1;
     
     curX = x;
     curY = y; 
@@ -248,21 +154,21 @@ void host_moveCursor(int x, int y)
 
 void host_showBuffer()
 {
-    for (int y=0; y<SCREEN_HEIGHT; y++)
+    for (int y = 0; y < SCREEN_HEIGHT; y++)
     {
-        if (lineDirty[y] || (inputMode && y==curY))
+        if (lineDirty[y] || (inputMode && y == curY))
         {
 
 #ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
             lcd.setCursor(0, y);
 #endif
-            for (int x=0; x<SCREEN_WIDTH; x++)
+            for (int x = 0; x < SCREEN_WIDTH; x++)
             {
                 char c = screenBuffer[y * SCREEN_WIDTH + x];
-                if (c<32) 
+                if (c < 32) 
                     c = ' ';
                 
-                if (x==curX && y==curY && inputMode && flash)
+                if (x == curX && y == curY && inputMode && flash)
                     c = CURSOR_CHR;
 
 #ifdef I2C_LCD1602_LCD_16x2_DISPLAY_IN_USE
@@ -277,8 +183,8 @@ void host_showBuffer()
 
 void scrollBuffer()
 {
-    memcpy(screenBuffer, screenBuffer + SCREEN_WIDTH, SCREEN_WIDTH*(SCREEN_HEIGHT-1));
-    memset(screenBuffer + SCREEN_WIDTH*(SCREEN_HEIGHT-1), 32, SCREEN_WIDTH);
+    memcpy(screenBuffer, screenBuffer + SCREEN_WIDTH, SCREEN_WIDTH * (SCREEN_HEIGHT - 1));
+    memset(screenBuffer + SCREEN_WIDTH * (SCREEN_HEIGHT - 1), 32, SCREEN_WIDTH);
     memset(lineDirty, 1, SCREEN_HEIGHT);
     curY--;
 }
@@ -290,7 +196,7 @@ void host_outputString(char *str)
     {
         lineDirty[pos / SCREEN_WIDTH] = 1;
         screenBuffer[pos++] = *str++;
-        if (pos >= SCREEN_WIDTH*SCREEN_HEIGHT)
+        if (pos >= SCREEN_WIDTH * SCREEN_HEIGHT)
         {
             scrollBuffer();
             pos -= SCREEN_WIDTH;
@@ -319,7 +225,7 @@ void host_outputChar(char c)
     lineDirty[pos / SCREEN_WIDTH] = 1;
     
     screenBuffer[pos++] = c;
-    if (pos >= SCREEN_WIDTH*SCREEN_HEIGHT)
+    if (pos >= SCREEN_WIDTH * SCREEN_HEIGHT)
     {
         scrollBuffer();
         pos -= SCREEN_WIDTH;
@@ -332,7 +238,7 @@ void host_outputChar(char c)
 
 int host_outputInt(long num)
 {
-    // returns len
+    // Returns len
     long i = num, xx = 1;
     int c = 0;
     do {
@@ -342,7 +248,7 @@ int host_outputInt(long num)
     } 
     while (i);
 
-    for (int i=0; i<c; i++)
+    for (int i = 0; i < c; i++)
     {
         xx /= 10;
         char digit = ((num/xx) % 10) + '0';
@@ -354,7 +260,7 @@ int host_outputInt(long num)
 
 char *host_floatToStr(float f, char *buf)
 {
-    // floats have approx 7 sig figs
+    // Floats have approx 7 sig figs
     float a = fabs(f);
     if (f == 0.0f)
     {
@@ -363,7 +269,7 @@ char *host_floatToStr(float f, char *buf)
     }
     else if (a<0.0001 || a>1000000)
     {
-        // this will output -1.123456E99 = 13 characters max including trailing nul
+        // This will output -1.123456E99 = 13 characters max including trailing nul
         dtostre(f, buf, 6, 0);
     }
     else
@@ -373,7 +279,7 @@ char *host_floatToStr(float f, char *buf)
     
         if (decPos)
         {
-            // remove trailing 0s
+            // Remove trailing 0s
             char *p = buf;
             while (*p) p++;
             p--;
@@ -404,7 +310,7 @@ void host_newLine()
     if (curY == SCREEN_HEIGHT)
         scrollBuffer();
     
-    memset(screenBuffer + SCREEN_WIDTH*(curY), 32, SCREEN_WIDTH);
+    memset(screenBuffer + SCREEN_WIDTH * (curY), 32, SCREEN_WIDTH);
     lineDirty[curY] = 1;
 }
 
@@ -413,7 +319,7 @@ char *host_readLine()
     inputMode = 1;
 
     if (curX == 0) 
-        memset(screenBuffer + SCREEN_WIDTH*(curY), 32, SCREEN_WIDTH);
+        memset(screenBuffer + SCREEN_WIDTH * (curY), 32, SCREEN_WIDTH);
     else 
         host_newLine();
 
@@ -426,14 +332,11 @@ char *host_readLine()
 #ifdef SERIAL_TERM_IN_USE
         while(Serial.available() > 0)
 #endif
-
-#ifdef KEYPAD_8x5_IN_USE
-        if(pressed_key_char != 0)
-#endif
         {
+#ifdef BUZZER_IN_USE
             host_click();
-
-            // read the next key
+#endif
+            // Read the next key
             lineDirty[pos / SCREEN_WIDTH] = 1;
 
 #ifdef SERIAL_TERM_IN_USE
@@ -447,24 +350,10 @@ char *host_readLine()
                 done = true;
 #endif
 
-#ifdef KEYPAD_8x5_IN_USE
-            if (pressed_key_char >= 32 && pressed_key_char <= 126)
-            {
-                screenBuffer[pos++] = pressed_key_char;
-            }
-//            else if (pressed_key_char == SERIAL_DELETE && pos > startPos)
-//                 screenBuffer[--pos] = 0;
-            else if (pressed_key_char == KEY_ENTER)
-            {
-                done = true;
-            }
-
-            pressed_key_char = 0;
-#endif
             curX = pos % SCREEN_WIDTH;
             curY = pos / SCREEN_WIDTH;
 
-            // scroll if we need to
+            // Scroll if we need to
             if (curY == SCREEN_HEIGHT)
             {
                 if (startPos >= SCREEN_WIDTH)
@@ -491,7 +380,7 @@ char *host_readLine()
     screenBuffer[pos] = 0;
     inputMode = 0;
 
-    // remove the cursor
+    // Remove the cursor
     lineDirty[curY] = 1;
     host_showBuffer();
     return &screenBuffer[startPos];
@@ -542,13 +431,13 @@ void host_saveProgram(bool autoexec)
     EEPROM.write(1, sysPROGEND & 0xFF);
     EEPROM.write(2, (sysPROGEND >> 8) & 0xFF);
 
-    for (int i=0; i<sysPROGEND; i++)
-        EEPROM.write(3+i, mem[i]);
+    for (int i = 0; i < sysPROGEND; i++)
+        EEPROM.write(3 + i, mem[i]);
 }
 
 void host_loadProgram()
 {
-    // skip the autorun byte
+    // Skip the autorun byte
     sysPROGEND = EEPROM.read(1) | (EEPROM.read(2) << 8);
 
     for (int i=0; i<sysPROGEND; i++)
