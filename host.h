@@ -3,7 +3,7 @@
 
 #define MAXTEXTLEN          128  // 1行の最大文字数
 #if !defined (__STM32F1__)
- WiringPinMode  int
+#define WiringPinMode  int
 #endif
 
 void host_init();
