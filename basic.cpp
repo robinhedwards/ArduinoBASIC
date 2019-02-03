@@ -116,23 +116,23 @@ const char* const errorTable[] PROGMEM = {
 
 
 PROGMEM const TokenTableEntry tokenTable[] = {
-    {0, 0}, {0, 0}, {0, 0}, {0, 0},
-    {0, 0}, {0, 0}, {0, 0}, {0, 0},
-    {"(", 0}, {")",0}, {"+",0}, {"-",0},
-    {"*",0}, {"/",0}, {"=",0}, {">",0},
-    {"<",0}, {"<>",0}, {">=",0}, {"<=",0},
-    {":",TKN_FMT_POST}, {";",0}, {",",0}, {"AND",TKN_FMT_PRE|TKN_FMT_POST},
-    {"OR",TKN_FMT_PRE|TKN_FMT_POST}, {"NOT",TKN_FMT_POST}, {"PRINT",TKN_FMT_POST}, {"LET",TKN_FMT_POST},
-    {"LIST",TKN_FMT_POST}, {"RUN",TKN_FMT_POST}, {"GOTO",TKN_FMT_POST}, {"REM",TKN_FMT_POST},
-    {"STOP",TKN_FMT_POST}, {"INPUT",TKN_FMT_POST},  {"CONT",TKN_FMT_POST}, {"IF",TKN_FMT_POST},
-    {"THEN",TKN_FMT_PRE|TKN_FMT_POST}, {"LEN",1|TKN_ARG1_TYPE_STR}, {"VAL",1|TKN_ARG1_TYPE_STR}, {"RND",0},
-    {"INT",1}, {"STR$", 1|TKN_RET_TYPE_STR}, {"FOR",TKN_FMT_POST}, {"TO",TKN_FMT_PRE|TKN_FMT_POST},
-    {"STEP",TKN_FMT_PRE|TKN_FMT_POST}, {"NEXT", TKN_FMT_POST}, {"MOD",TKN_FMT_PRE|TKN_FMT_POST}, {"NEW",TKN_FMT_POST},
-    {"GOSUB",TKN_FMT_POST}, {"RETURN",TKN_FMT_POST}, {"DIM", TKN_FMT_POST}, {"LEFT$",2|TKN_ARG1_TYPE_STR|TKN_RET_TYPE_STR},
-    {"RIGHT$",2|TKN_ARG1_TYPE_STR|TKN_RET_TYPE_STR}, {"MID$",3|TKN_ARG1_TYPE_STR|TKN_RET_TYPE_STR}, {"CLS",TKN_FMT_POST}, {"PAUSE",TKN_FMT_POST},
-    {"POSITION", TKN_FMT_POST},  {"PIN",TKN_FMT_POST}, {"PINMODE", TKN_FMT_POST}, {"INKEY$", 0},
-    {"SAVE", TKN_FMT_POST}, {"LOAD", TKN_FMT_POST}, {"PINREAD",1}, {"ANALOGRD",1},
-    {"DIR", TKN_FMT_POST}, {"DELETE", TKN_FMT_POST}
+  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+  {"(", 0}, {")",0}, {"+",0}, {"-",0},
+  {"*",0}, {"/",0}, {"=",0}, {">",0},
+  {"<",0}, {"<>",0}, {">=",0}, {"<=",0},
+  {":",TKN_FMT_POST}, {";",0}, {",",0}, {"AND",TKN_FMT_PRE|TKN_FMT_POST},
+  {"OR",TKN_FMT_PRE|TKN_FMT_POST}, {"NOT",TKN_FMT_POST}, {"PRINT",TKN_FMT_POST}, {"LET",TKN_FMT_POST},
+  {"LIST",TKN_FMT_POST}, {"RUN",TKN_FMT_POST}, {"GOTO",TKN_FMT_POST}, {"REM",TKN_FMT_POST},
+  {"STOP",TKN_FMT_POST}, {"INPUT",TKN_FMT_POST},  {"CONT",TKN_FMT_POST}, {"IF",TKN_FMT_POST},
+  {"THEN",TKN_FMT_PRE|TKN_FMT_POST}, {"LEN",1|TKN_ARG1_TYPE_STR}, {"VAL",1|TKN_ARG1_TYPE_STR}, {"RND",0},
+  {"INT",1}, {"STR$", 1|TKN_RET_TYPE_STR}, {"FOR",TKN_FMT_POST}, {"TO",TKN_FMT_PRE|TKN_FMT_POST},
+  {"STEP",TKN_FMT_PRE|TKN_FMT_POST}, {"NEXT", TKN_FMT_POST}, {"MOD",TKN_FMT_PRE|TKN_FMT_POST}, {"NEW",TKN_FMT_POST},
+  {"GOSUB",TKN_FMT_POST}, {"RETURN",TKN_FMT_POST}, {"DIM", TKN_FMT_POST}, {"LEFT$",2|TKN_ARG1_TYPE_STR|TKN_RET_TYPE_STR},
+  {"RIGHT$",2|TKN_ARG1_TYPE_STR|TKN_RET_TYPE_STR}, {"MID$",3|TKN_ARG1_TYPE_STR|TKN_RET_TYPE_STR}, {"CLS",TKN_FMT_POST}, {"PAUSE",TKN_FMT_POST},
+  {"POSITION", TKN_FMT_POST},  {"PIN",TKN_FMT_POST}, {"PINMODE", TKN_FMT_POST}, {"INKEY$", 0},
+  {"SAVE", TKN_FMT_POST}, {"LOAD", TKN_FMT_POST}, {"PINREAD",1}, {"ANALOGRD",1},
+  {"DIR", TKN_FMT_POST}, {"DELETE", TKN_FMT_POST}
 };
 
 
@@ -140,112 +140,106 @@ PROGMEM const TokenTableEntry tokenTable[] = {
  * PROGRAM FUNCTIONS
  * **************************************************************************/
 void printTokens(unsigned char *p) {
-    int modeREM = 0;
-    while (*p != TOKEN_EOL) {
-        if (*p == TOKEN_IDENT) {
-            p++;
-            while (*p < 0x80)
-                host_outputChar(*p++);
-            host_outputChar((*p++)-0x80);
+  int modeREM = 0;
+  while (*p != TOKEN_EOL) {
+    if (*p == TOKEN_IDENT) {
+      p++;
+      while (*p < 0x80)
+          host_outputChar(*p++);
+      host_outputChar((*p++)-0x80);
+    } else if (*p == TOKEN_NUMBER) {
+      p++;
+      host_outputFloat(*(float*)p);
+      p+=4;
+    } else if (*p == TOKEN_INTEGER) {
+      p++;
+      host_outputInt(*(long*)p);
+      p+=4;
+    } else if (*p == TOKEN_STRING) {
+      p++;
+      if (modeREM) {
+          host_outputString((char*)p);
+          p+=1 + strlen((char*)p);
+      } else {
+        host_outputChar('\"');
+        while (*p) {
+          if (*p == '\"') host_outputChar('\"');
+          host_outputChar(*p++);
         }
-        else if (*p == TOKEN_NUMBER) {
-            p++;
-            host_outputFloat(*(float*)p);
-            p+=4;
-        }
-        else if (*p == TOKEN_INTEGER) {
-            p++;
-            host_outputInt(*(long*)p);
-            p+=4;
-        }
-        else if (*p == TOKEN_STRING) {
-            p++;
-            if (modeREM) {
-                host_outputString((char*)p);
-                p+=1 + strlen((char*)p);
-            }
-            else {
-                host_outputChar('\"');
-                while (*p) {
-                    if (*p == '\"') host_outputChar('\"');
-                    host_outputChar(*p++);
-                }
-                host_outputChar('\"');
-                p++;
-            }
-        }
-        else {
-            uint8_t fmt = pgm_read_byte_near(&tokenTable[*p].format);
-            if (fmt & TKN_FMT_PRE)
-                host_outputChar(' ');
-            host_outputString((char *)pgm_read_word(&tokenTable[*p].token));
-            if (fmt & TKN_FMT_POST)
-                host_outputChar(' ');
-            if (*p==TOKEN_REM)
-                modeREM = 1;
-            p++;
-        }
+        host_outputChar('\"');
+        p++;
+      }
+    } else {
+      uint8_t fmt = pgm_read_byte_near(&tokenTable[*p].format);
+      if (fmt & TKN_FMT_PRE)
+        host_outputChar(' ');
+      host_outputString((char *)pgm_read_word(&tokenTable[*p].token));
+      if (fmt & TKN_FMT_POST)
+        host_outputChar(' ');
+      if (*p==TOKEN_REM)
+        modeREM = 1;
+      p++;
     }
+  }
 }
 
 void listProg(uint16_t first, uint16_t last) {
-    unsigned char *p = &mem[0];
-    while (p < &mem[sysPROGEND]) {
-        uint16_t lineNum = *(uint16_t*)(p+2);
-        if ((!first || lineNum >= first) && (!last || lineNum <= last)) {
-            host_outputInt(lineNum);
-            host_outputChar(' ');
-            printTokens(p+4);
-            host_newLine();
-        }
-        p+= *(uint16_t *)p;
+  unsigned char *p = &mem[0];
+  while (p < &mem[sysPROGEND]) {
+    uint16_t lineNum = *(uint16_t*)(p+2);
+    if ((!first || lineNum >= first) && (!last || lineNum <= last)) {
+      host_outputInt(lineNum);
+      host_outputChar(' ');
+      printTokens(p+4);
+      host_newLine();
     }
+    p+= *(uint16_t *)p;
+  }
 }
 
 unsigned char *findProgLine(uint16_t targetLineNumber) {
-    unsigned char *p = &mem[0];
-    while (p < &mem[sysPROGEND]) {
-        uint16_t lineNum = *(uint16_t*)(p+2);
-        if (lineNum >= targetLineNumber)
-            break;
-        p+= *(uint16_t *)p;
-    }
-    return p;
+  unsigned char *p = &mem[0];
+  while (p < &mem[sysPROGEND]) {
+    uint16_t lineNum = *(uint16_t*)(p+2);
+    if (lineNum >= targetLineNumber)
+        break;
+    p+= *(uint16_t *)p;
+  }
+  return p;
 }
 
 void deleteProgLine(unsigned char *p) {
-    uint16_t lineLen = *(uint16_t*)p;
-    sysPROGEND -= lineLen;
-    memmove(p, p+lineLen, &mem[sysPROGEND] - p);
+  uint16_t lineLen = *(uint16_t*)p;
+  sysPROGEND -= lineLen;
+  memmove(p, p+lineLen, &mem[sysPROGEND] - p);
 }
 
-int doProgLine(uint16_t lineNumber, unsigned char* tokenPtr, int tokensLength)
-{
-    // find line of the at or immediately after the number
-    unsigned char *p = findProgLine(lineNumber);
-    uint16_t foundLine = 0;
-    if (p < &mem[sysPROGEND])
-        foundLine = *(uint16_t*)(p+2);
-    // if there's a line matching this one - delete it
-    if (foundLine == lineNumber)
-        deleteProgLine(p);
-    // now check to see if this is an empty line, if so don't insert it
-    if (*tokenPtr == TOKEN_EOL)
-        return 1;
-    // we now need to insert the new line at p
-    int bytesNeeded = 4 + tokensLength;	// length, linenum + tokens
-    if (sysPROGEND + bytesNeeded > sysVARSTART)
-        return 0;
-    // make room if this isn't the last line
-    if (foundLine)
-        memmove(p + bytesNeeded, p, &mem[sysPROGEND] - p);
-    *(uint16_t *)p = bytesNeeded; 
-    p += 2;
-    *(uint16_t *)p = lineNumber; 
-    p += 2;
-    memcpy(p, tokenPtr, tokensLength);
-    sysPROGEND += bytesNeeded;
+int doProgLine(uint16_t lineNumber, unsigned char* tokenPtr, int tokensLength) {
+  // find line of the at or immediately after the number
+  unsigned char *p = findProgLine(lineNumber);
+  uint16_t foundLine = 0;
+  if (p < &mem[sysPROGEND])
+    foundLine = *(uint16_t*)(p+2);
+  // if there's a line matching this one - delete it
+  if (foundLine == lineNumber)
+    deleteProgLine(p);
+  // now check to see if this is an empty line, if so don't insert it
+  if (*tokenPtr == TOKEN_EOL)
     return 1;
+  // we now need to insert the new line at p
+  int bytesNeeded = 4 + tokensLength;	// length, linenum + tokens
+  if (sysPROGEND + bytesNeeded > sysVARSTART)
+    return 0;
+  // make room if this isn't the last line
+  if (foundLine)
+    memmove(p + bytesNeeded, p, &mem[sysPROGEND] - p);
+  *(uint16_t *)p = bytesNeeded; 
+  p += 2;
+  *(uint16_t *)p = lineNumber; 
+  p += 2;
+  memcpy(p, tokenPtr, tokensLength);
+  sysPROGEND += bytesNeeded;
+  return 1;
 }
 
 /* **************************************************************************
@@ -257,104 +251,107 @@ int doProgLine(uint16_t lineNumber, unsigned char* tokenPtr, int tokensLength)
 // contains either floats or null-terminated strings with the length on the end
 
 int stackPushNum(float val) {
-    if (sysSTACKEND + sizeof(float) > sysVARSTART)
-        return 0;	// out of memory
-    unsigned char *p = &mem[sysSTACKEND];
-    *(float *)p = val;
-    sysSTACKEND += sizeof(float);
-    return 1;
+  if (sysSTACKEND + sizeof(float) > sysVARSTART)
+    return 0;	// out of memory
+  unsigned char *p = &mem[sysSTACKEND];
+  *(float *)p = val;
+  sysSTACKEND += sizeof(float);
+  return 1;
 }
+
 float stackPopNum() {
-    sysSTACKEND -= sizeof(float);
-    unsigned char *p = &mem[sysSTACKEND];
-    return *(float *)p;
+  sysSTACKEND -= sizeof(float);
+  unsigned char *p = &mem[sysSTACKEND];
+  return *(float *)p;
 }
+
 int stackPushStr(char *str) {
-    int len = 1 + strlen(str);
-    if (sysSTACKEND + len + 2 > sysVARSTART)
-        return 0;	// out of memory
-    unsigned char *p = &mem[sysSTACKEND];
-    strcpy((char*)p, str);
-    p += len;
-    *(uint16_t *)p = len;
-    sysSTACKEND += len + 2;
-    return 1;
+  int len = 1 + strlen(str);
+  if (sysSTACKEND + len + 2 > sysVARSTART)
+    return 0;	// out of memory
+  unsigned char *p = &mem[sysSTACKEND];
+  strcpy((char*)p, str);
+  p += len;
+  *(uint16_t *)p = len;
+  sysSTACKEND += len + 2;
+  return 1;
 }
+
 char *stackGetStr() {
-    // returns string without popping it
-    unsigned char *p = &mem[sysSTACKEND];
-    int len = *(uint16_t *)(p-2);
-    return (char *)(p-len-2);
+  // returns string without popping it
+  unsigned char *p = &mem[sysSTACKEND];
+  int len = *(uint16_t *)(p-2);
+  return (char *)(p-len-2);
 }
+
 char *stackPopStr() {
-    unsigned char *p = &mem[sysSTACKEND];
-    int len = *(uint16_t *)(p-2);
-    sysSTACKEND -= (len+2);
-    return (char *)&mem[sysSTACKEND];
+  unsigned char *p = &mem[sysSTACKEND];
+  int len = *(uint16_t *)(p-2);
+  sysSTACKEND -= (len+2);
+  return (char *)&mem[sysSTACKEND];
 }
 
 void stackAdd2Strs() {
-    // equivalent to popping 2 strings, concatenating them and pushing the result
-    unsigned char *p = &mem[sysSTACKEND];
-    int str2len = *(uint16_t *)(p-2);
-    sysSTACKEND -= (str2len+2);
-    char *str2 = (char*)&mem[sysSTACKEND];
-    p = &mem[sysSTACKEND];
-    int str1len = *(uint16_t *)(p-2);
-    sysSTACKEND -= (str1len+2);
-    char *str1 = (char*)&mem[sysSTACKEND];
-    p = &mem[sysSTACKEND];
-    // shift the second string up (overwriting the null terminator of the first string)
-    memmove(str1 + str1len - 1, str2, str2len);
-    // write the length and update stackend
-    int newLen = str1len + str2len - 1;
-    p += newLen;
-    *(uint16_t *)p = newLen;
-    sysSTACKEND += newLen + 2;
+  // equivalent to popping 2 strings, concatenating them and pushing the result
+  unsigned char *p = &mem[sysSTACKEND];
+  int str2len = *(uint16_t *)(p-2);
+  sysSTACKEND -= (str2len+2);
+  char *str2 = (char*)&mem[sysSTACKEND];
+  p = &mem[sysSTACKEND];
+  int str1len = *(uint16_t *)(p-2);
+  sysSTACKEND -= (str1len+2);
+  char *str1 = (char*)&mem[sysSTACKEND];
+  p = &mem[sysSTACKEND];
+  // shift the second string up (overwriting the null terminator of the first string)
+  memmove(str1 + str1len - 1, str2, str2len);
+  // write the length and update stackend
+  int newLen = str1len + str2len - 1;
+  p += newLen;
+  *(uint16_t *)p = newLen;
+  sysSTACKEND += newLen + 2;
 }
 
 // mode 0 = LEFT$, 1 = RIGHT$
 void stackLeftOrRightStr(int len, int mode) {
-    // equivalent to popping the current string, doing the operation then pushing it again
-    unsigned char *p = &mem[sysSTACKEND];
-    int strlen = *(uint16_t *)(p-2);
-    len++; // include trailing null
-    if (len > strlen) len = strlen;
-    if (len == strlen) return;	// nothing to do
-    sysSTACKEND -= (strlen+2);
-    p = &mem[sysSTACKEND];
-    if (mode == 0) {
-        // truncate the string on the stack
-        *(p+len-1) = 0;
-    }
-    else {
-        // copy the rightmost characters
-        memmove(p, p + strlen - len, len);
-    }
-    // write the length and update stackend
-    p += len;
-    *(uint16_t *)p = len;
-    sysSTACKEND += len + 2;
+  // equivalent to popping the current string, doing the operation then pushing it again
+  unsigned char *p = &mem[sysSTACKEND];
+  int strlen = *(uint16_t *)(p-2);
+  len++; // include trailing null
+  if (len > strlen) len = strlen;
+  if (len == strlen) return;	// nothing to do
+  sysSTACKEND -= (strlen+2);
+  p = &mem[sysSTACKEND];
+  if (mode == 0) {
+    // truncate the string on the stack
+    *(p+len-1) = 0;
+  } else {
+    // copy the rightmost characters
+    memmove(p, p + strlen - len, len);
+  }
+  // write the length and update stackend
+  p += len;
+  *(uint16_t *)p = len;
+  sysSTACKEND += len + 2;
 }
 
 void stackMidStr(int start, int len) {
-    // equivalent to popping the current string, doing the operation then pushing it again
-    unsigned char *p = &mem[sysSTACKEND];
-    int strlen = *(uint16_t *)(p-2);
-    len++; // include trailing null
-    if (start > strlen) start = strlen;
-    start--;	// basic strings start at 1
-    if (start + len > strlen) len = strlen - start;
-    if (len == strlen) return;	// nothing to do
-    sysSTACKEND -= (strlen+2);
-    p = &mem[sysSTACKEND];
-    // copy the characters
-    memmove(p, p + start, len-1);
-    *(p+len-1) = 0;
-    // write the length and update stackend
-    p += len;
-    *(uint16_t *)p = len;
-    sysSTACKEND += len + 2;
+  // equivalent to popping the current string, doing the operation then pushing it again
+  unsigned char *p = &mem[sysSTACKEND];
+  int strlen = *(uint16_t *)(p-2);
+  len++; // include trailing null
+  if (start > strlen) start = strlen;
+  start--;	// basic strings start at 1
+  if (start + len > strlen) len = strlen - start;
+  if (len == strlen) return;	// nothing to do
+  sysSTACKEND -= (strlen+2);
+  p = &mem[sysSTACKEND];
+  // copy the characters
+  memmove(p, p + start, len-1);
+  *(p+len-1) = 0;
+  // write the length and update stackend
+  p += len;
+  *(uint16_t *)p = len;
+  sysSTACKEND += len + 2;
 }
 
 /* **************************************************************************
@@ -382,180 +379,177 @@ void stackMidStr(int start, int len) {
 #define VAR_TYPE_STR_ARRAY	0x10
 
 unsigned char *findVariable(char *searchName, int searchMask) {
-    unsigned char *p = &mem[sysVARSTART];
-    while (p < &mem[sysVAREND]) {
-        int type = *(p+2);
-        if (type & searchMask) {
-            unsigned char *name = p+3;
-            if (strcasecmp((char*)name, searchName) == 0)
-                return p;
-        }
-        p+= *(uint16_t *)p;
-    }
-    return NULL;
+  unsigned char *p = &mem[sysVARSTART];
+  while (p < &mem[sysVAREND]) {
+      int type = *(p+2);
+      if (type & searchMask) {
+          unsigned char *name = p+3;
+          if (strcasecmp((char*)name, searchName) == 0)
+              return p;
+      }
+      p+= *(uint16_t *)p;
+  }
+  return NULL;
 }
 
 void deleteVariableAt(unsigned char *pos) {
-    int len = *(uint16_t *)pos;
-    if (pos == &mem[sysVARSTART]) {
-        sysVARSTART += len;
-        return;
-    }
-    memmove(&mem[sysVARSTART] + len, &mem[sysVARSTART], pos - &mem[sysVARSTART]);
-    sysVARSTART += len;
+  int len = *(uint16_t *)pos;
+  if (pos == &mem[sysVARSTART]) {
+      sysVARSTART += len;
+      return;
+  }
+  memmove(&mem[sysVARSTART] + len, &mem[sysVARSTART], pos - &mem[sysVARSTART]);
+  sysVARSTART += len;
 }
 
 // todo - consistently return errors rather than 1 or 0?
 
 int storeNumVariable(char *name, float val) {
-    // these can be modified in place
-    int nameLen = strlen(name);
-    unsigned char *p = findVariable(name, VAR_TYPE_NUM|VAR_TYPE_FORNEXT);
-    if (p != NULL)
-    {	// replace the old value
-        // (could either be VAR_TYPE_NUM or VAR_TYPE_FORNEXT)
-        p += 3;	// len + type;
-        p += nameLen + 1;
-        *(float *)p = val;
-    }
-    else
-    {	// allocate a new variable
-        int bytesNeeded = 3;	// len + flags
-        bytesNeeded += nameLen + 1;	// name
-        bytesNeeded += sizeof(float);	// val
+  // these can be modified in place
+  int nameLen = strlen(name);
+  unsigned char *p = findVariable(name, VAR_TYPE_NUM|VAR_TYPE_FORNEXT);
+  if (p != NULL)  {	// replace the old value
+    // (could either be VAR_TYPE_NUM or VAR_TYPE_FORNEXT)
+    p += 3;	// len + type;
+    p += nameLen + 1;
+    *(float *)p = val;
+  } else {	// allocate a new variable
+    int bytesNeeded = 3;	// len + flags
+    bytesNeeded += nameLen + 1;	// name
+    bytesNeeded += sizeof(float);	// val
 
-        if (sysVARSTART - bytesNeeded < sysSTACKEND)
-            return 0;	// out of memory
-        sysVARSTART -= bytesNeeded;
+    if (sysVARSTART - bytesNeeded < sysSTACKEND)
+        return 0;	// out of memory
+    sysVARSTART -= bytesNeeded;
 
-        unsigned char *p = &mem[sysVARSTART];
-        *(uint16_t *)p = bytesNeeded; 
-        p += 2;
-        *p++ = VAR_TYPE_NUM;
-        strcpy((char*)p, name); 
-        p += nameLen + 1;
-        *(float *)p = val;
-    }
-    return 1;
+    unsigned char *p = &mem[sysVARSTART];
+    *(uint16_t *)p = bytesNeeded; 
+    p += 2;
+    *p++ = VAR_TYPE_NUM;
+    strcpy((char*)p, name); 
+    p += nameLen + 1;
+    *(float *)p = val;
+  }
+  return 1;
 }
 
 int storeForNextVariable(char *name, float start, float step, float end, uint16_t lineNum, uint16_t stmtNum) {
-    int nameLen = strlen(name);
-    int bytesNeeded = 3;	// len + flags
-    bytesNeeded += nameLen + 1;	// name
-    bytesNeeded += 3 * sizeof(float);	// vals
-    bytesNeeded += 2 * sizeof(uint16_t);
+  int nameLen = strlen(name);
+  int bytesNeeded = 3;	// len + flags
+  bytesNeeded += nameLen + 1;	// name
+  bytesNeeded += 3 * sizeof(float);	// vals
+  bytesNeeded += 2 * sizeof(uint16_t);
 
-    // unlike simple numeric variables, these are reallocated if they already exist
-    // since the existing value might be a simple variable or a for/next variable
-    unsigned char *p = findVariable(name, VAR_TYPE_NUM|VAR_TYPE_FORNEXT);
-    if (p != NULL) {
-        // check there will actually be room for the new value
-        uint16_t oldVarLen = *(uint16_t*)p;
-        if (sysVARSTART - (bytesNeeded - oldVarLen) < sysSTACKEND)
-            return 0;	// not enough memory
-        deleteVariableAt(p);
-    }
+  // unlike simple numeric variables, these are reallocated if they already exist
+  // since the existing value might be a simple variable or a for/next variable
+  unsigned char *p = findVariable(name, VAR_TYPE_NUM|VAR_TYPE_FORNEXT);
+  if (p != NULL) {
+    // check there will actually be room for the new value
+    uint16_t oldVarLen = *(uint16_t*)p;
+    if (sysVARSTART - (bytesNeeded - oldVarLen) < sysSTACKEND)
+        return 0;	// not enough memory
+    deleteVariableAt(p);
+  }
 
-    if (sysVARSTART - bytesNeeded < sysSTACKEND)
-        return 0;	// out of memory
-    sysVARSTART -= bytesNeeded;
+  if (sysVARSTART - bytesNeeded < sysSTACKEND)
+      return 0;	// out of memory
+  sysVARSTART -= bytesNeeded;
 
-    p = &mem[sysVARSTART];
-    *(uint16_t *)p = bytesNeeded; 
-    p += 2;
-    *p++ = VAR_TYPE_FORNEXT;
-    strcpy((char*)p, name); 
-    p += nameLen + 1;
-    *(float *)p = start; 
-    p += sizeof(float);
-    *(float *)p = step; 
-    p += sizeof(float);
-    *(float *)p = end; 
-    p += sizeof(float);
-    *(uint16_t *)p = lineNum; 
-    p += sizeof(uint16_t);
-    *(uint16_t *)p = stmtNum;
-    return 1;
+  p = &mem[sysVARSTART];
+  *(uint16_t *)p = bytesNeeded; 
+  p += 2;
+  *p++ = VAR_TYPE_FORNEXT;
+  strcpy((char*)p, name); 
+  p += nameLen + 1;
+  *(float *)p = start; 
+  p += sizeof(float);
+  *(float *)p = step; 
+  p += sizeof(float);
+  *(float *)p = end; 
+  p += sizeof(float);
+  *(uint16_t *)p = lineNum; 
+  p += sizeof(uint16_t);
+  *(uint16_t *)p = stmtNum;
+  return 1;
 }
 
 int storeStrVariable(char *name, char *val) {
-    int nameLen = strlen(name);
-    int valLen = strlen(val);
-    int bytesNeeded = 3;	// len + type
-    bytesNeeded += nameLen + 1;	// name
-    bytesNeeded += valLen + 1;	// val
+  int nameLen = strlen(name);
+  int valLen = strlen(val);
+  int bytesNeeded = 3;	// len + type
+  bytesNeeded += nameLen + 1;	// name
+  bytesNeeded += valLen + 1;	// val
 
-    // strings and arrays are re-allocated if they already exist
-    unsigned char *p = findVariable(name, VAR_TYPE_STRING);
-    if (p != NULL) {
-        // check there will actually be room for the new value
-        uint16_t oldVarLen = *(uint16_t*)p;
-        if (sysVARSTART - (bytesNeeded - oldVarLen) < sysSTACKEND)
-            return 0;	// not enough memory
-        deleteVariableAt(p);
-    }
+  // strings and arrays are re-allocated if they already exist
+  unsigned char *p = findVariable(name, VAR_TYPE_STRING);
+  if (p != NULL) {
+      // check there will actually be room for the new value
+      uint16_t oldVarLen = *(uint16_t*)p;
+      if (sysVARSTART - (bytesNeeded - oldVarLen) < sysSTACKEND)
+          return 0;	// not enough memory
+      deleteVariableAt(p);
+  }
 
-    if (sysVARSTART - bytesNeeded < sysSTACKEND)
-        return 0;	// out of memory
-    sysVARSTART -= bytesNeeded;
+  if (sysVARSTART - bytesNeeded < sysSTACKEND)
+      return 0;	// out of memory
+  sysVARSTART -= bytesNeeded;
 
-    p = &mem[sysVARSTART];
-    *(uint16_t *)p = bytesNeeded; 
-    p += 2;
-    *p++ = VAR_TYPE_STRING;
-    strcpy((char*)p, name); 
-    p += nameLen + 1;
-    strcpy((char*)p, val);
-    return 1;
+  p = &mem[sysVARSTART];
+  *(uint16_t *)p = bytesNeeded; 
+  p += 2;
+  *p++ = VAR_TYPE_STRING;
+  strcpy((char*)p, name); 
+  p += nameLen + 1;
+  strcpy((char*)p, val);
+  return 1;
 }
 
 int createArray(char *name, int isString) {
-    // dimensions and number of dimensions on the calculator stack
-    int nameLen = strlen(name);
-    int bytesNeeded = 3;	// len + flags
-    bytesNeeded += nameLen + 1;	// name
-    bytesNeeded += 2;		// num dims
-    int numElements = 1;
-    int i = 0;
-    int numDims = (int)stackPopNum();
-    // keep the current stack position, since we'll need to pop these values again
-    int oldSTACKEND = sysSTACKEND;	
-    for (int i=0; i<numDims; i++) {
-        int dim = (int)stackPopNum();
-        numElements *= dim;
-    }
-    bytesNeeded += 2 * numDims + (isString ? 1 : sizeof(float)) * numElements;
-    // strings and arrays are re-allocated if they already exist
-    unsigned char *p = findVariable(name, (isString ? VAR_TYPE_STR_ARRAY : VAR_TYPE_NUM_ARRAY));
-    if (p != NULL) {
-        // check there will actually be room for the new value
-        uint16_t oldVarLen = *(uint16_t*)p;
-        if (sysVARSTART - (bytesNeeded - oldVarLen) < sysSTACKEND)
-            return 0;	// not enough memory
-        deleteVariableAt(p);
-    }
+  // dimensions and number of dimensions on the calculator stack
+  int nameLen = strlen(name);
+  int bytesNeeded = 3;	// len + flags
+  bytesNeeded += nameLen + 1;	// name
+  bytesNeeded += 2;		// num dims
+  int numElements = 1;
+  int i = 0;
+  int numDims = (int)stackPopNum();
+  // keep the current stack position, since we'll need to pop these values again
+  int oldSTACKEND = sysSTACKEND;	
+  for (int i=0; i<numDims; i++) {
+      int dim = (int)stackPopNum();
+      numElements *= dim;
+  }
+  bytesNeeded += 2 * numDims + (isString ? 1 : sizeof(float)) * numElements;
+  // strings and arrays are re-allocated if they already exist
+  unsigned char *p = findVariable(name, (isString ? VAR_TYPE_STR_ARRAY : VAR_TYPE_NUM_ARRAY));
+  if (p != NULL) {
+    // check there will actually be room for the new value
+    uint16_t oldVarLen = *(uint16_t*)p;
+    if (sysVARSTART - (bytesNeeded - oldVarLen) < sysSTACKEND)
+      return 0;	// not enough memory
+    deleteVariableAt(p);
+  }
 
-    if (sysVARSTART - bytesNeeded < sysSTACKEND)
-        return 0;	// out of memory
-    sysVARSTART -= bytesNeeded;
+  if (sysVARSTART - bytesNeeded < sysSTACKEND)
+      return 0;	// out of memory
+  sysVARSTART -= bytesNeeded;
 
-    p = &mem[sysVARSTART];
-    *(uint16_t *)p = bytesNeeded; 
+  p = &mem[sysVARSTART];
+  *(uint16_t *)p = bytesNeeded; 
+  p += 2;
+  *p++ = (isString ? VAR_TYPE_STR_ARRAY : VAR_TYPE_NUM_ARRAY);
+  strcpy((char*)p, name); 
+  p += nameLen + 1;
+  *(uint16_t *)p = numDims; 
+  p += 2;
+  sysSTACKEND = oldSTACKEND;
+  for (int i=0; i<numDims; i++) {
+    int dim = (int)stackPopNum();
+    *(uint16_t *)p = dim; 
     p += 2;
-    *p++ = (isString ? VAR_TYPE_STR_ARRAY : VAR_TYPE_NUM_ARRAY);
-    strcpy((char*)p, name); 
-    p += nameLen + 1;
-    *(uint16_t *)p = numDims; 
-    p += 2;
-    sysSTACKEND = oldSTACKEND;
-    for (int i=0; i<numDims; i++) {
-        int dim = (int)stackPopNum();
-        *(uint16_t *)p = dim; 
-        p += 2;
-    }
-    memset(p, 0, numElements * (isString ? 1 : sizeof(float)));
-    return 1;
+  }
+  memset(p, 0, numElements * (isString ? 1 : sizeof(float)));
+  return 1;
 }
 
 int _getArrayElemOffset(unsigned char **p, int *pOffset) {
@@ -1458,7 +1452,7 @@ int parse_LIST() {
     }
     if (executeMode) {
         listProg(first,last);
-        host_showBuffer();
+        //host_showBuffer();
     }
     return 0;
 }
@@ -1485,7 +1479,7 @@ int parse_PRINT() {
     if (executeMode) {
         if (newLine)
             host_newLine();
-        host_showBuffer();
+        //host_showBuffer();
     }
     return 0;
 }
@@ -1503,17 +1497,17 @@ int parseTwoIntCmd() {
     val = expectNumber();
     if (val) return val;	// error
     if (executeMode) {
-        int second = (int)stackPopNum();
+        WiringPinMode second = (WiringPinMode)stackPopNum();
         int first = (int)stackPopNum();
         switch(op) {
         case TOKEN_POSITION: 
-            host_moveCursor(first,second); 
+            //host_moveCursor(first,second); 
             break;
         case TOKEN_PIN: 
             host_digitalWrite(first,second); 
             break;
         case TOKEN_PINMODE: 
-            host_pinMode(first,second); 
+            host_pinMode(first, second); 
             break;
         }
     }
@@ -1548,7 +1542,7 @@ int parseAssignment(bool inputStmt) {
                 if (!stackPushNum(f)) return ERROR_OUT_OF_MEMORY;
             }
             host_newLine();
-            host_showBuffer();
+            //host_showBuffer();
         }
         val = isStringIdentifier ? TYPE_STRING : TYPE_NUMBER;
     }
@@ -1690,8 +1684,7 @@ int parseLoadSaveCmd() {
     if (op == TOKEN_SAVE && curToken == TOKEN_PLUS) {
         getNextToken();
         autoexec = 1;
-    }
-    else if (curToken != TOKEN_EOL && curToken != TOKEN_CMD_SEP) {
+    } else if (curToken != TOKEN_EOL && curToken != TOKEN_CMD_SEP) {
         int val = parseExpression();
         if (val & ERROR_MASK) return val;
         if (!IS_TYPE_STR(val))
@@ -1701,34 +1694,14 @@ int parseLoadSaveCmd() {
 
     if (executeMode) {
         if (gotFileName) {
-#if EXTERNAL_EEPROM
-            char fileName[MAX_IDENT_LEN+1];
-            if (strlen(stackGetStr()) > MAX_IDENT_LEN)
-                return ERROR_BAD_PARAMETER;
-            strcpy(fileName, stackPopStr());
-            if (op == TOKEN_SAVE) {
-                if (!host_saveExtEEPROM(fileName))
-                    return ERROR_OUT_OF_MEMORY;
-            }
-            else if (op == TOKEN_LOAD) {
-                reset();
-                if (!host_loadExtEEPROM(fileName))
-                    return ERROR_BAD_PARAMETER;
-            }
-            else if (op == TOKEN_DELETE) {
-                if (!host_removeExtEEPROM(fileName))
-                    return ERROR_BAD_PARAMETER;
-            }
-#endif
-        }
-        else {
+        } else {
             if (op == TOKEN_SAVE)
-                host_saveProgram(autoexec);
+//                host_saveProgram(autoexec);
+            ;
             else if (op == TOKEN_LOAD) {
                 reset();
-                host_loadProgram();
-            }
-            else
+                //host_loadProgram();
+            }  else
                 return ERROR_UNEXPECTED_CMD;
         }
     }
@@ -1765,7 +1738,7 @@ int parseSimpleCmd() {
             }
             case TOKEN_CLS:
                 host_cls();
-                host_showBuffer();
+                //host_showBuffer();
                 break;
             case TOKEN_DIR:
 #if EXTERNAL_EEPROM
@@ -1793,8 +1766,7 @@ int parse_DIM() {
 }
 
 static int targetStmtNumber;
-int parseStmts()
-{
+int parseStmts() {
     int ret = 0;
     breakCurrentLine = 0;
     jumpLineNumber = 0;
@@ -1871,114 +1843,108 @@ int parseStmts()
 }
 
 int processInput(unsigned char *tokenBuf) {
-    // first token can be TOKEN_INTEGER for line number - stored as a float in numVal
-    // store as WORD line number (max 65535)
-    tokenBuffer = tokenBuf;
-    getNextToken();
-    // check for a line number at the start
-    uint16_t gotLineNumber = 0;
-    unsigned char *lineStartPtr = 0;
-    if (curToken == TOKEN_INTEGER) {
-        long val = (long)numVal;
-        if (val <=65535) {
-            gotLineNumber = (uint16_t)val;
-            lineStartPtr = tokenBuffer;
-            getNextToken();
-        }
-        else
-            return ERROR_LINE_NUM_TOO_BIG;
-    }
+  // first token can be TOKEN_INTEGER for line number - stored as a float in numVal
+  // store as WORD line number (max 65535)
+  tokenBuffer = tokenBuf;
+  getNextToken();
+  // check for a line number at the start
+  uint16_t gotLineNumber = 0;
+  unsigned char *lineStartPtr = 0;
+  if (curToken == TOKEN_INTEGER) {
+    long val = (long)numVal;
+    if (val <=65535) {
+        gotLineNumber = (uint16_t)val;
+        lineStartPtr = tokenBuffer;
+        getNextToken();
+    } else
+      return ERROR_LINE_NUM_TOO_BIG;
+  }
 
-    executeMode = 0;
-    targetStmtNumber = 0;
-    int ret = parseStmts();	// syntax check
-    if (ret != ERROR_NONE)
-        return ret;
-
-    if (gotLineNumber) {
-        if (!doProgLine(gotLineNumber, lineStartPtr, tokenBuffer - lineStartPtr))
-            ret = ERROR_OUT_OF_MEMORY;
-    }
-    else {
-        // we start off executing from the input buffer
-        tokenBuffer = tokenBuf;
-        executeMode = 1;
-        lineNumber = 0;	// buffer
-        unsigned char *p;
-
-        while (1) {
-            getNextToken();
-
-            stmtNumber = 0;
-            // skip any statements? (e.g. for/next)
-            if (targetStmtNumber) {
-                executeMode = 0; 
-                parseStmts(); 
-                executeMode = 1;
-                targetStmtNumber = 0;
-            }
-            // now execute
-            ret = parseStmts();
-            if (ret != ERROR_NONE)
-                break;
-
-            // are we processing the input buffer?
-            if (!lineNumber && !jumpLineNumber && !jumpStmtNumber)
-                break;	// if no control flow jumps, then just exit
-
-            // are we RETURNing to the input buffer?
-            if (lineNumber && !jumpLineNumber && jumpStmtNumber)
-                lineNumber = 0;
-
-            if (!lineNumber && !jumpLineNumber && jumpStmtNumber) {
-                // we're executing the buffer, and need to jump stmt (e.g. for/next)
-                tokenBuffer = tokenBuf;
-            }
-            else {
-                // we're executing the program
-                if (jumpLineNumber || jumpStmtNumber) {
-                    // line/statement number was changed e.g. goto
-                    p = findProgLine(jumpLineNumber);
-                }
-                else {
-                    // line number didn't change, so just move one to the next one
-                    p+= *(uint16_t *)p;
-                }
-                // end of program?
-                if (p == &mem[sysPROGEND])
-                    break;	// end of program
-
-                lineNumber = *(uint16_t*)(p+2);
-                tokenBuffer = p+4;
-                // if the target for a jump is missing (e.g. line deleted) and we're on the next line
-                // reset the stmt number to 0
-                if (jumpLineNumber && jumpStmtNumber && lineNumber > jumpLineNumber)
-                    jumpStmtNumber = 0;
-            }
-            if (jumpStmtNumber)
-                targetStmtNumber = jumpStmtNumber;
-
-            if (host_ESCPressed())
-            { 
-                ret = ERROR_BREAK_PRESSED; 
-                break; 
-            }
-        }
-    }
+  executeMode = 0;
+  targetStmtNumber = 0;
+  int ret = parseStmts();	// syntax check
+  if (ret != ERROR_NONE)
     return ret;
+
+  if (gotLineNumber) {
+    if (!doProgLine(gotLineNumber, lineStartPtr, tokenBuffer - lineStartPtr))
+        ret = ERROR_OUT_OF_MEMORY;
+  } else {
+    // we start off executing from the input buffer
+    tokenBuffer = tokenBuf;
+    executeMode = 1;
+    lineNumber = 0;	// buffer
+    unsigned char *p;
+
+    while (1) {
+      getNextToken();
+
+      stmtNumber = 0;
+      // skip any statements? (e.g. for/next)
+      if (targetStmtNumber) {
+          executeMode = 0; 
+          parseStmts(); 
+          executeMode = 1;
+          targetStmtNumber = 0;
+      }
+      // now execute
+      ret = parseStmts();
+      if (ret != ERROR_NONE)
+          break;
+
+      // are we processing the input buffer?
+      if (!lineNumber && !jumpLineNumber && !jumpStmtNumber)
+          break;	// if no control flow jumps, then just exit
+
+      // are we RETURNing to the input buffer?
+      if (lineNumber && !jumpLineNumber && jumpStmtNumber)
+          lineNumber = 0;
+
+      if (!lineNumber && !jumpLineNumber && jumpStmtNumber) {
+          // we're executing the buffer, and need to jump stmt (e.g. for/next)
+          tokenBuffer = tokenBuf;
+      } else {
+        // we're executing the program
+        if (jumpLineNumber || jumpStmtNumber) {
+            // line/statement number was changed e.g. goto
+            p = findProgLine(jumpLineNumber);
+        } else {
+          // line number didn't change, so just move one to the next one
+          p+= *(uint16_t *)p;
+        }
+        // end of program?
+        if (p == &mem[sysPROGEND])
+            break;	// end of program
+
+        lineNumber = *(uint16_t*)(p+2);
+        tokenBuffer = p+4;
+        // if the target for a jump is missing (e.g. line deleted) and we're on the next line
+        // reset the stmt number to 0
+        if (jumpLineNumber && jumpStmtNumber && lineNumber > jumpLineNumber)
+            jumpStmtNumber = 0;
+      }
+      if (jumpStmtNumber)
+          targetStmtNumber = jumpStmtNumber;
+
+      if (host_ESCPressed()) { 
+        ret = ERROR_BREAK_PRESSED; 
+        break; 
+      }
+    }
+  }
+  return ret;
 }
 
 void reset() {
-    // program at the start of memory
-    sysPROGEND = 0;
-    // stack is at the end of the program area
-    sysSTACKSTART = sysSTACKEND = sysPROGEND;
-    // variables/gosub stack at the end of memory
-    sysVARSTART = sysVAREND = sysGOSUBSTART = sysGOSUBEND = MEMORY_SIZE;
-    memset(&mem[0], 0, MEMORY_SIZE);
+  // program at the start of memory
+  sysPROGEND = 0;
+  // stack is at the end of the program area
+  sysSTACKSTART = sysSTACKEND = sysPROGEND;
+  // variables/gosub stack at the end of memory
+  sysVARSTART = sysVAREND = sysGOSUBSTART = sysGOSUBEND = MEMORY_SIZE;
+  memset(&mem[0], 0, MEMORY_SIZE);
 
-    stopLineNumber = 0;
-    stopStmtNumber = 0;
-    lineNumber = 0;
+  stopLineNumber = 0;
+  stopStmtNumber = 0;
+  lineNumber = 0;
 }
-

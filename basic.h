@@ -135,10 +135,8 @@ TokenTableEntry;
 //extern const char *errorTable[];
 extern const char* const errorTable[];
 
-
 void reset();
 int tokenize(unsigned char *input, unsigned char *output, int outputSize);
 int processInput(unsigned char *tokenBuf);
 
 #endif
-
